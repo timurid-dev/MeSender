@@ -1,0 +1,47 @@
+﻿@page "/"
+@using ChatRoom.Models
+@using MudBlazor
+@inject HttpClient Http
+
+<MudContainer>
+    <i><MudTextField @bind-Value="_message" Label="Сообщение вводить сюды" Style="background-color: antiquewhite" /></i>
+    <MudButton Style="background-color: #1b6ec2" OnClick="SendMessage">Отправить</MudButton>
+    <MudList T="Message">
+        <MudText>Список сообщений чата:</MudText>
+        <ul style="background-color: darkkhaki">
+        @if (_messages != null)
+        {
+            foreach (var message in _messages)
+            {
+                <li><MudListItem>@message.Text</MudListItem></li>
+            }
+        }
+        </ul>
+    </MudList>
+</MudContainer>
+
+@code {
+    private string _message = null!;
+    private List<Message>? _messages = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMessages();
+    }
+
+    private async Task LoadMessages()
+    {
+        _messages = await Http.GetFromJsonAsync<List<Message>>("api/messages");
+    }
+
+    private async Task SendMessage()
+    {
+        if (string.IsNullOrEmpty(_message))
+            return;
+        
+        var message = new Message { Text = _message };
+        await Http.PostAsJsonAsync("api/messages", message);
+        _message = string.Empty;
+        await LoadMessages();
+    }
+}
