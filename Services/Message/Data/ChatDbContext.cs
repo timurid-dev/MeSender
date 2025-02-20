@@ -8,6 +8,6 @@ public class ChatDbContext: DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseSqlite("Data Source=Messages.db");
+        optionsBuilder.UseSqlite("Data Source=Data/Messages.db");
     }
 }
