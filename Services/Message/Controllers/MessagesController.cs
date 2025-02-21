@@ -19,8 +19,7 @@ public class MessagesController(ChatDbContext context) : ControllerBase
     {
         if (string.IsNullOrEmpty(message.Text))
             return BadRequest("Message content cannot be empty.");
-
-        message.Timestamp = DateTime.UtcNow;
+        
         context.Messages.Add(message);
         await context.SaveChangesAsync();
 

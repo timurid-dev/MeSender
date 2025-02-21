@@ -9,6 +9,4 @@ public class Message
     [Required]
     [MaxLength(1000)]
     public string Text { get; set; } = string.Empty;
-    
-    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 }
