@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Message.Models;
+namespace MeSender.Messages.WebApi.Models;
 
 public class Message
 {

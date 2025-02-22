@@ -1,8 +1,8 @@
-﻿using Message.Data;
+﻿using MeSender.Messages.WebApi.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
-namespace Message.Controllers;
+namespace MeSender.Messages.WebApi.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]

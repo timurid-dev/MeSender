@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Message.Data;
+namespace MeSender.Messages.WebApi.Data;
 
 public class ChatDbContext: DbContext
 {

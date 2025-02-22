@@ -1,4 +1,4 @@
-using Message.Data;
+using MeSender.Messages.WebApi.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
