@@ -1,8 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Message", "Services\Message\Message.csproj", "{38834685-3510-45E2-8B92-8625FCD9BDF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatRoom", "Frontend\ChatRoom\ChatRoom.csproj", "{93C534C2-5E16-40BF-8380-A864300EFBC6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{C31730E1-7393-46CB-A795-4527A08D8C58}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{C40FAC51-B985-4232-89E5-7FE4786FC900}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +25,12 @@ Global
 		{93C534C2-5E16-40BF-8380-A864300EFBC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93C534C2-5E16-40BF-8380-A864300EFBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93C534C2-5E16-40BF-8380-A864300EFBC6}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{38834685-3510-45E2-8B92-8625FCD9BDF7} = {C31730E1-7393-46CB-A795-4527A08D8C58}
+		{93C534C2-5E16-40BF-8380-A864300EFBC6} = {C40FAC51-B985-4232-89E5-7FE4786FC900}
 	EndGlobalSection
 EndGlobal
