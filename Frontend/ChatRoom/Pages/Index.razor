@@ -4,18 +4,22 @@
 @inject HttpClient Http
 
 <MudContainer>
-    <i><MudTextField @bind-Value="_message" Label="Сообщение вводить сюды" Style="background-color: antiquewhite" /></i>
-    <MudButton Style="background-color: #1b6ec2" OnClick="SendMessage">Отправить</MudButton>
+    <i>
+        <MudTextField @bind-Value="_message" Label="Сообщение вводить сюды" Style="background-color: antiquewhite"/>
+    </i>
+    <MudButton Style="background-color: #1b6ec2" OnClick="SendMessageAsync">Отправить</MudButton>
     <MudList T="Message">
         <MudText>Список сообщений чата:</MudText>
         <ul style="background-color: darkkhaki">
-        @if (_messages != null)
-        {
-            foreach (var message in _messages)
+            @if (_messages != null)
             {
-                <li><MudListItem>@message.Text</MudListItem></li>
+                foreach (var message in _messages)
+                {
+                    <li>
+                        <MudListItem>@message.Text</MudListItem>
+                    </li>
+                }
             }
-        }
         </ul>
     </MudList>
 </MudContainer>
@@ -26,22 +30,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadMessages();
+        await LoadMessagesAsync();
     }
 
-    private async Task LoadMessages()
+    private async Task LoadMessagesAsync()
     {
         _messages = await Http.GetFromJsonAsync<List<Message>>("api/messages");
     }
 
-    private async Task SendMessage()
+    private async Task SendMessageAsync()
     {
         if (string.IsNullOrEmpty(_message))
             return;
-        
+
         var message = new Message { Text = _message };
         await Http.PostAsJsonAsync("api/messages", message);
         _message = string.Empty;
-        await LoadMessages();
+        await LoadMessagesAsync();
     }
+
 }

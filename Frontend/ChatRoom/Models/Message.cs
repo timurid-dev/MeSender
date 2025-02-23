@@ -1,6 +1,6 @@
 ﻿namespace ChatRoom.Models;
 
-public class Message 
+internal record Message
 {
     public string Text { get; init; } = string.Empty;
 }

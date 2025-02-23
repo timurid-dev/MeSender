@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Messages.WebApi", "Services\Message\MeSender.Messages.WebApi.csproj", "{38834685-3510-45E2-8B92-8625FCD9BDF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Messages.WebApi", "Services\Messages\MeSender.Messages.WebApi.csproj", "{38834685-3510-45E2-8B92-8625FCD9BDF7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatRoom", "Frontend\ChatRoom\ChatRoom.csproj", "{93C534C2-5E16-40BF-8380-A864300EFBC6}"
 EndProject
