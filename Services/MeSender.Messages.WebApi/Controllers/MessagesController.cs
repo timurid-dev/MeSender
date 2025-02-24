@@ -1,5 +1,5 @@
-﻿using MeSender.Messages.WebApi.Data;
-using MeSender.Messages.WebApi.Models;
+﻿using MeSender.Messages.Data;
+using MeSender.Messages.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 

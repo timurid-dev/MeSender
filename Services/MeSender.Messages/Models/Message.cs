@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace MeSender.Messages.WebApi.Models;
+namespace MeSender.Messages.Models;
 
 public record Message
 {

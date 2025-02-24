@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace MeSender.Messages.WebApi.Migrations
+namespace MeSender.Messages.Migrations
 {
     /// <inheritdoc />
 #pragma warning disable MA0048
@@ -16,9 +17,9 @@ namespace MeSender.Messages.WebApi.Migrations
                 name: "Messages",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", value: true),
-                    Text = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: false),
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Text = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                 },
                 constraints: table =>
                 {

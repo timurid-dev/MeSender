@@ -11,6 +11,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{C3
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{C40FAC51-B985-4232-89E5-7FE4786FC900}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Messages", "Services\MeSender.Messages\MeSender.Messages.csproj", "{AA92F26E-4890-44D1-9171-76C8963A20B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -25,6 +27,10 @@ Global
 		{93C534C2-5E16-40BF-8380-A864300EFBC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93C534C2-5E16-40BF-8380-A864300EFBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93C534C2-5E16-40BF-8380-A864300EFBC6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA92F26E-4890-44D1-9171-76C8963A20B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA92F26E-4890-44D1-9171-76C8963A20B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA92F26E-4890-44D1-9171-76C8963A20B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA92F26E-4890-44D1-9171-76C8963A20B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -32,5 +38,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{38834685-3510-45E2-8B92-8625FCD9BDF7} = {C31730E1-7393-46CB-A795-4527A08D8C58}
 		{93C534C2-5E16-40BF-8380-A864300EFBC6} = {C40FAC51-B985-4232-89E5-7FE4786FC900}
+		{AA92F26E-4890-44D1-9171-76C8963A20B1} = {C31730E1-7393-46CB-A795-4527A08D8C58}
 	EndGlobalSection
 EndGlobal
