@@ -1,5 +1,5 @@
 ﻿using MeSender.Messages.Data;
-using MeSender.Messages.Models;
+using MeSender.Messages.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,7 +10,7 @@ namespace MeSender.Messages.WebApi.Controllers;
 public sealed class MessagesController(ChatDbContext context) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<List<Message>>> GetMessagesAsync()
+    public async Task<ActionResult<List<Messages.Models.Message>>> GetMessagesAsync()
     {
         return await context.Messages.ToListAsync(cancellationToken: HttpContext.RequestAborted);
     }
@@ -23,12 +23,14 @@ public sealed class MessagesController(ChatDbContext context) : ControllerBase
             return BadRequest("Message content cannot be empty.");
         }
 
-        context.Messages.Add(message);
+        var messageMapped = new Messages.Models.Message()
+        {
+            Text = message.Text,
+        };
+
+        context.Messages.Add(messageMapped);
         await context.SaveChangesAsync(HttpContext.RequestAborted);
 
-        return CreatedAtAction(nameof(GetMessagesAsync), new
-        {
-            id = message.Id,
-        }, message);
+        return CreatedAtAction(nameof(GetMessagesAsync), message);
     }
 }
