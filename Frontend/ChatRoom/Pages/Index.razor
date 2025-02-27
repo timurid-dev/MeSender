@@ -16,7 +16,7 @@
                 foreach (var message in _messages)
                 {
                     <li>
-                        <MudListItem>@message.Text</MudListItem>
+                        <MudListItem>@message.CreatedAt - @message.Text</MudListItem>
                     </li>
                 }
             }
@@ -35,7 +35,7 @@
 
     private async Task LoadMessagesAsync()
     {
-        _messages = await Http.GetFromJsonAsync<List<Message>>("api/messages");
+        _messages = await Http.GetFromJsonAsync<List<Message>>("api/messages/");
     }
 
     private async Task SendMessageAsync()
@@ -43,8 +43,13 @@
         if (string.IsNullOrEmpty(_message))
             return;
 
-        var message = new Message { Text = _message };
-        await Http.PostAsJsonAsync("api/messages", message);
+        var message = new Message
+        {
+            Id = Guid.NewGuid(),
+            Text = _message
+        };
+        var url = $"api/messages/{message.Id}";
+        await Http.PutAsJsonAsync(requestUri: url, value: message);
         _message = string.Empty;
         await LoadMessagesAsync();
     }

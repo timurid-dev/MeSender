@@ -4,8 +4,12 @@ namespace MeSender.Messages.Models;
 
 public sealed class Message
 {
-    public int Id { get; init; }
+    public Guid Id { get; set; }
 
     [MaxLength(1000)]
-    public string Text { get; init; } = string.Empty;
+    public string Text { get; set; } = string.Empty;
+
+    public DateTime CreatedAt { get; set; } = DateTime.MinValue;
+
+    public DateTime? UpdatedAt { get; set; }
 }
