@@ -11,5 +11,5 @@ public sealed class Message
 
     public DateTime CreatedAt { get; set; } = DateTime.MinValue;
 
-    public DateTime? UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; }
 }

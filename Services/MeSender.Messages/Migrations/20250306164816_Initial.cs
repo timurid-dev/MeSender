@@ -7,7 +7,7 @@ namespace MeSender.Messages.Migrations
 {
     /// <inheritdoc />
 #pragma warning disable MA0048
-    public sealed partial class InitialCreate : Migration
+    public partial class Initial : Migration
 #pragma warning restore MA0048
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace MeSender.Messages.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Text = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                 },
                 constraints: table =>
                 {

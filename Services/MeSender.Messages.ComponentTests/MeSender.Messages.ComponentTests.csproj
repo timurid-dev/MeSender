@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+        <IsTestProject>true</IsTestProject>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\MeSender.Messages.WebApi\MeSender.Messages.WebApi.csproj" />
+      <ProjectReference Include="..\MeSender.Messages\MeSender.Messages.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="FluentAssertions" Version="8.1.1" />
+      <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.2" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.2" />
+      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+      <PackageReference Include="xunit" Version="2.9.3" />
+    </ItemGroup>
+
+</Project>
