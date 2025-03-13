@@ -5,22 +5,29 @@ using Xunit;
 
 namespace MeSender.Messages.ComponentTests;
 
-public sealed class MessagesControllerTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory>
+public sealed class MessagesControllerTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
 {
     private readonly HttpClient _client = factory.CreateClient();
+
+    public async Task InitializeAsync()
+    {
+        await factory.ClearDatabaseAsync();
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     [Fact]
     public async Task GetMessages_ShouldReturnEmptyList()
     {
         // Arrange
-         factory.ClearDatabase();
 
         // Act
-         var response = await _client.GetAsync("/api/messages");
-         var messages = await response.Content.ReadFromJsonAsync<List<Message>>();
+         var messages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
 
         // Assert
-         response.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
          messages.Should().BeEmpty();
     }
 
@@ -28,7 +35,6 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
     public async Task SendMessage_ShouldAppearInList()
     {
         // Arrange
-        factory.ClearDatabase();
         var message = new Message
         {
             Text = "Test Message",
@@ -48,7 +54,6 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
     public async Task SendTwoMessages_ShouldAppearInOrder()
     {
         // Arrange
-        factory.ClearDatabase();
         var message1 = new Message
             {
                 Text = "First Message",
@@ -73,7 +78,6 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
     public async Task UpdateMessage_ShouldUpdateTextAndTimestamp()
     {
         // Arrange
-        factory.ClearDatabase();
         var message = new Message
         {
             Text = "Original Text",

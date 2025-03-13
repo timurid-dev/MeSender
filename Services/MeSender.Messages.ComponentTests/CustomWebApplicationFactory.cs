@@ -25,11 +25,11 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<WebApi.C
         });
     }
 
-    internal void ClearDatabase()
+    internal async Task ClearDatabaseAsync()
     {
-        using var scope = Services.CreateScope();
+        await using var scope = Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
         dbContext.Messages.RemoveRange(dbContext.Messages);
-        dbContext.SaveChanges();
+        await dbContext.SaveChangesAsync();
     }
 }
