@@ -7,7 +7,7 @@ namespace MeSender.Messages.Migrations
 {
     /// <inheritdoc />
 #pragma warning disable MA0048
-    public partial class Initial : Migration
+    public sealed partial class Initial : Migration
 #pragma warning restore MA0048
     {
         /// <inheritdoc />

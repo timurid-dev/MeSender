@@ -8,30 +8,28 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace MeSender.Messages.ComponentTests;
 
-public sealed class CustomWebApplicationFactory : WebApplicationFactory<MeSender.Messages.WebApi.Controllers.MessagesController>
+public sealed class CustomWebApplicationFactory : WebApplicationFactory<WebApi.Controllers.MessagesController>
 {
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices(services =>
         {
             var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<ChatDbContext>));
+                d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ChatDbContext>));
             if (descriptor != null)
             {
                 services.Remove(descriptor);
             }
 
-            services.AddDbContext<ChatDbContext>(options => options.UseInMemoryDatabase(Guid.NewGuid().ToString()));
+            services.AddDbContext<ChatDbContext>(options => options.UseInMemoryDatabase("TestInmemoryDB"));
         });
     }
 
-    public void ClearDatabase()
+    internal void ClearDatabase()
     {
-        using (var scope = Services.CreateScope())
-        {
-            var dbContext = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
-            dbContext.Messages.RemoveRange(dbContext.Messages);
-            dbContext.SaveChanges();
-        }
+        using var scope = Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<ChatDbContext>();
+        dbContext.Messages.RemoveRange(dbContext.Messages);
+        dbContext.SaveChanges();
     }
 }

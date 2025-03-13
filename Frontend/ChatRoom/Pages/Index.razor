@@ -5,15 +5,15 @@
 
 <MudContainer>
     <i>
-        <MudTextField @bind-Value="_message" Label="Сообщение вводить сюды" Style="background-color: antiquewhite"/>
+        <MudTextField @bind-Value="messageToSend" Label="Сообщение вводить сюды" Style="background-color: antiquewhite"/>
     </i>
     <MudButton Style="background-color: #1b6ec2" OnClick="SendMessageAsync">Отправить</MudButton>
     <MudList T="Message">
         <MudText>Список сообщений чата:</MudText>
         <ul style="background-color: darkkhaki">
-            @if (_messages != null)
+            @if (messages != null)
             {
-                foreach (var message in _messages)
+                foreach (var message in messages)
                 {
                     <li>
                         <MudListItem>@message.CreatedAt - @message.Text</MudListItem>
@@ -25,8 +25,8 @@
 </MudContainer>
 
 @code {
-    private string _message = null!;
-    private List<Message>? _messages = [];
+    private string messageToSend = null!;
+    private List<Message>? messages = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,22 +35,21 @@
 
     private async Task LoadMessagesAsync()
     {
-        _messages = await Http.GetFromJsonAsync<List<Message>>("api/messages/");
+        messages = await Http.GetFromJsonAsync<List<Message>>("api/messages/");
     }
 
     private async Task SendMessageAsync()
     {
-        if (string.IsNullOrEmpty(_message))
+        if (string.IsNullOrEmpty(messageToSend))
             return;
 
         var message = new Message
         {
-            Id = Guid.NewGuid(),
-            Text = _message
+            Text = messageToSend
         };
-        var url = $"api/messages/{message.Id}";
+        var url = $"api/messages/{Guid.NewGuid()}";
         await Http.PutAsJsonAsync(requestUri: url, value: message);
-        _message = string.Empty;
+        messageToSend = string.Empty;
         await LoadMessagesAsync();
     }
 

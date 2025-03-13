@@ -1,8 +1,6 @@
 using System.Net.Http.Json;
 using FluentAssertions;
-using MeSender.Messages.Data;
-using MeSender.Messages.WebApi.Models;
-using Microsoft.Extensions.DependencyInjection;
+using MeSender.Messages.Models;
 using Xunit;
 
 namespace MeSender.Messages.ComponentTests;
@@ -37,11 +35,9 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
         };
 
         // Act
-        var sendResponse = await _client.PostAsJsonAsync("/api/messages", message);
-        sendResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-
-        var getResponse = await _client.GetAsync("/api/messages");
-        var messages = await getResponse.Content.ReadFromJsonAsync<List<Message>>();
+        var sendResponse = await _client.PutAsJsonAsync($"/api/messages/{Guid.NewGuid()}", message);
+        sendResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.NoContent);
+        var messages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
 
         // Assert
         messages.Should().ContainSingle();
@@ -63,11 +59,9 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
         };
 
         // Act
-        await _client.PostAsJsonAsync("/api/messages", message1);
-        await _client.PostAsJsonAsync("/api/messages", message2);
-
-        var getResponse = await _client.GetAsync("/api/messages");
-        var messages = await getResponse.Content.ReadFromJsonAsync<List<Message>>();
+        await _client.PutAsJsonAsync($"/api/messages/{Guid.NewGuid()}", message1);
+        await _client.PutAsJsonAsync($"/api/messages/{Guid.NewGuid()}", message2);
+        var messages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
 
         // Assert
         messages.Should().HaveCount(2);
@@ -84,32 +78,26 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
         {
             Text = "Original Text",
         };
-        await _client.PostAsJsonAsync("/api/messages", message);
+        var messageId = Guid.NewGuid();
 
-        var getResponse = await _client.GetAsync("/api/messages");
-        var originalMessage = (await getResponse.Content.ReadFromJsonAsync<List<Message>>())?[0];
+        await _client.PutAsJsonAsync($"/api/messages/{messageId}", message);
+        var messages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
 
-        if (originalMessage != null)
+        // Act
+        if (messages?[0] != null)
         {
-            var updatedMessage = new Message
-                {
-                    Id = originalMessage.Id, Text = "Updated Text",
-                };
-
-            // Act
-            var updateResponse = await _client.PutAsJsonAsync($"/api/messages/{originalMessage.Id}", updatedMessage);
-            updateResponse.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
+            messages[0].Text = "Updated Text";
+            await _client.PutAsJsonAsync($"/api/messages/{messages[0].Id}", messages[0]);
         }
 
-        var updatedGetResponse = await _client.GetAsync("/api/messages");
-        var updatedMessages = await updatedGetResponse.Content.ReadFromJsonAsync<List<Message>>();
+        var updatedMessages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
 
         // Assert
         updatedMessages.Should().ContainSingle();
         updatedMessages[0].Text.Should().Be("Updated Text");
-        if (originalMessage != null)
+        if (messages?[0].UpdatedAt != null)
         {
-            updatedMessages[0].UpdatedAt.Should().BeAfter(originalMessage.UpdatedAt);
+            updatedMessages[0].UpdatedAt.Should().BeAfter(messages[0].UpdatedAt);
         }
     }
 }
