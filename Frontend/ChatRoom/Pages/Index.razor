@@ -16,7 +16,13 @@
                 foreach (var message in messages)
                 {
                     <li>
-                        <MudListItem>@message.CreatedAt - @message.Text</MudListItem>
+                        <MudListItem>Создано: @message.CreateTimestamp
+                            @if (message.UpdatedTimeStamp != null)
+                            {
+                                <i>(Изменено: @message.UpdatedTimeStamp)</i>
+                            }<br/>
+                            Сообщение: @message.Text
+                        </MudListItem>
                     </li>
                 }
             }
@@ -30,10 +36,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadMessagesAsync();
+        await ListMessagesAsync();
     }
 
-    private async Task LoadMessagesAsync()
+    private async Task ListMessagesAsync()
     {
         messages = await Http.GetFromJsonAsync<List<Message>>("api/messages/");
     }
@@ -43,14 +49,11 @@
         if (string.IsNullOrEmpty(messageToSend))
             return;
 
-        var message = new Message
-        {
-            Text = messageToSend
-        };
-        var url = $"api/messages/{Guid.NewGuid()}";
-        await Http.PutAsJsonAsync(requestUri: url, value: message);
+        var message = new Message(messageToSend);
+        var uri = $"api/messages/{Guid.NewGuid()}";
+        await Http.PutAsJsonAsync(uri, message);
         messageToSend = string.Empty;
-        await LoadMessagesAsync();
+        await ListMessagesAsync();
     }
 
 }

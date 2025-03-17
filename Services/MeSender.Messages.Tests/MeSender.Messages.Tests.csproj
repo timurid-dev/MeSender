@@ -3,6 +3,7 @@
     <PropertyGroup>
         <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RootNamespace>MeSender.Messages.ComponentTests</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

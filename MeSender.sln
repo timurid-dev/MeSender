@@ -13,7 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{C4
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Messages", "Services\MeSender.Messages\MeSender.Messages.csproj", "{AA92F26E-4890-44D1-9171-76C8963A20B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Messages.ComponentTests", "Services\MeSender.Messages.ComponentTests\MeSender.Messages.ComponentTests.csproj", "{FA04A338-721F-4F3E-A203-496D966F2142}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Messages.Tests", "Services\MeSender.Messages.Tests\MeSender.Messages.Tests.csproj", "{FA04A338-721F-4F3E-A203-496D966F2142}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

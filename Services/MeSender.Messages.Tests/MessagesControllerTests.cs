@@ -9,16 +9,6 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
 {
     private readonly HttpClient _client = factory.CreateClient();
 
-    public async Task InitializeAsync()
-    {
-        await factory.ClearDatabaseAsync();
-    }
-
-    public Task DisposeAsync()
-    {
-        return Task.CompletedTask;
-    }
-
     [Fact]
     public async Task GetMessages_ShouldReturnEmptyList()
     {
@@ -78,30 +68,30 @@ public sealed class MessagesControllerTests(CustomWebApplicationFactory factory)
     public async Task UpdateMessage_ShouldUpdateTextAndTimestamp()
     {
         // Arrange
-        var message = new Message
+        var message = new MessageDto
         {
             Text = "Original Text",
         };
         var messageId = Guid.NewGuid();
-
-        await _client.PutAsJsonAsync($"/api/messages/{messageId}", message);
-        var messages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
+        const string uri = "/api/messages/";
+        await _client.PutAsJsonAsync($"{uri}{messageId}", message);
 
         // Act
-        if (messages?[0] != null)
-        {
-            messages[0].Text = "Updated Text";
-            await _client.PutAsJsonAsync($"/api/messages/{messages[0].Id}", messages[0]);
-        }
-
-        var updatedMessages = await _client.GetFromJsonAsync<List<Message>>("api/messages/");
+        message.Text = "Updated Text";
+        await _client.PutAsJsonAsync($"{uri}{messageId}", message);
 
         // Assert
+        var updatedMessages = await _client.GetFromJsonAsync<List<MessageDto>>(uri);
         updatedMessages.Should().ContainSingle();
-        updatedMessages[0].Text.Should().Be("Updated Text");
-        if (messages?[0].UpdatedAt != null)
+        var updatedMessage = updatedMessages[0];
+        updatedMessage.Text.Should().Be("Updated Text");
+        if (updatedMessage.UpdateTimestamp != null)
         {
-            updatedMessages[0].UpdatedAt.Should().BeAfter(messages[0].UpdatedAt);
+            updatedMessage.UpdateTimestamp.Should().BeAfter(updatedMessage.CreateTimestamp);
         }
     }
+
+    async Task IAsyncLifetime.InitializeAsync() => await factory.ClearDatabaseAsync();
+
+    Task IAsyncLifetime.DisposeAsync() => Task.CompletedTask;
 }

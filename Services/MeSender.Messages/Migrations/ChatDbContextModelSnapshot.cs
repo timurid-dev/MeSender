@@ -28,7 +28,7 @@ namespace MeSender.Messages.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreateTimestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Text")
@@ -36,7 +36,7 @@ namespace MeSender.Messages.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdateTimestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

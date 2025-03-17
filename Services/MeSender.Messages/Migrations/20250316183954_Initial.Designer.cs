@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MeSender.Messages.Migrations
 {
     [DbContext(typeof(ChatDbContext))]
-    [Migration("20250313091128_Initial")]
-    public sealed partial class Initial
+    [Migration("20250316183954_Initial")]
+    internal sealed partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ namespace MeSender.Messages.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTimeOffset>("CreateTimestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Text")
@@ -39,7 +39,7 @@ namespace MeSender.Messages.Migrations
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTimeOffset?>("UpdateTimestamp")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");

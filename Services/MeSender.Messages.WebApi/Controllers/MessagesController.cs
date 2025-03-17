@@ -1,4 +1,4 @@
-﻿using MeSender.Messages.Models;
+﻿using MeSender.Messages.Services;
 using MeSender.Messages.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,12 +6,13 @@ namespace MeSender.Messages.WebApi.Controllers;
 
 [ApiController]
 [Route("api/messages/")]
-public sealed class MessagesController(IDataHandler dataHandler) : ControllerBase
+public sealed class MessagesController(IMessageService messageService) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<ICollection<Messages.Models.Message>>> GetMessagesAsync()
+    public async Task<ActionResult<IReadOnlyCollection<MessageDto>>> ListMessagesAsync()
     {
-        return await dataHandler.SendDataAsync(HttpContext.RequestAborted);
+        var messages = await messageService.ListMessageAsync(HttpContext.RequestAborted);
+        return Ok(messages);
     }
 
     [HttpPut("{messageId:guid}")]
@@ -22,7 +23,7 @@ public sealed class MessagesController(IDataHandler dataHandler) : ControllerBas
             return BadRequest("Message content cannot be empty.");
         }
 
-        await dataHandler.ReceiveDataAsync(messageId, messageDto.Text, HttpContext.RequestAborted);
+        await messageService.SendMessageAsync(messageId, messageDto.Text, HttpContext.RequestAborted);
 
         return NoContent();
     }

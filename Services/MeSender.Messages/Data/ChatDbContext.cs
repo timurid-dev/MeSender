@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace MeSender.Messages.Data;
 
-public sealed class ChatDbContext(DbContextOptions<ChatDbContext> options) : DbContext(options)
+internal sealed class ChatDbContext(DbContextOptions<ChatDbContext> options) : DbContext(options)
 {
-    public DbSet<Message> Messages { get; init; }
+    internal DbSet<Message> Messages { get; init; }
 }

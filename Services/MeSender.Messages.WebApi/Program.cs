@@ -1,12 +1,8 @@
-using MeSender.Messages.Data;
-using MeSender.Messages.Models;
-using Microsoft.EntityFrameworkCore;
+using MeSender.Messages.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-builder.Services.AddDbContext<ChatDbContext>(options => options.UseNpgsql(connectionString));
-builder.Services.AddScoped<IDataHandler, DataHandler>();
+builder.Services.AddMessages(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException());
 
 var app = builder.Build();
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
