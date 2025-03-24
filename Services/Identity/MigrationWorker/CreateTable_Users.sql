@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS Users (
+    Id UUID PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL,
+    Password TEXT NOT NULL,
+    CONSTRAINT UQ_Users_Email UNIQUE (Email)
+);
