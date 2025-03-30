@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using MeSender.Identity.Data;
 using MeSender.Identity.Models;
+using MeSender.Identity.Services;
 
 namespace MeSender.Identity.Repositories;
 
@@ -11,7 +12,7 @@ internal sealed class UserRepository(string connectionString)
         var dbContext = new IdentityDbContext(connectionString);
         using var connection = dbContext.CreateConnection();
 
-        const string checkSql = """SELECT 1 FROM "Users" WHERE Email = @Email""";
+        const string checkSql = """SELECT 1 FROM "UserAuth" WHERE Email = @Email""";
         var exists = await connection.ExecuteScalarAsync<bool>(checkSql, new
         {
             user.Email,
@@ -22,7 +23,21 @@ internal sealed class UserRepository(string connectionString)
             return false;
         }
 
-        const string insertSql = """INSERT INTO "Users" (Id, Email, Password) VALUES (@Id, @Email, @Password)""";
-        return await connection.ExecuteAsync(insertSql, user) > 0;
+        var (passwordHash, salt) = PasswordService.HashPassword(user.Password);
+
+        const string insertUserSql = """INSERT INTO "Users" (Id, CreatedAt) VALUES (@Id, @CreatedAt)""";
+        await connection.ExecuteAsync(insertUserSql, user);
+
+        const string insertAuthSql = """INSERT INTO "UserAuth" (Id, UserId, Email, Password, Salt) VALUES (@AuthId, @Id, @Email, @Password, @Salt)""";
+        var authData = new
+        {
+            AuthId = Guid.NewGuid(),
+            user.Id,
+            user.Email,
+            Password = passwordHash,
+            Salt = salt,
+        };
+
+        return await connection.ExecuteAsync(insertAuthSql, authData) > 0;
     }
 }

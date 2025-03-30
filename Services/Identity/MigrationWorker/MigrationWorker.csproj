@@ -11,8 +11,8 @@
         <PackageReference Include="Dapper" Version="2.1.66" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.2"/>
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
-      <None Update="CreateTable_Users.sql">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="Queries\**\*">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 </Project>
