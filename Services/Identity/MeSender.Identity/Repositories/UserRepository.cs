@@ -1,17 +1,28 @@
 ﻿using Dapper;
 using MeSender.Identity.Data;
 using MeSender.Identity.Models;
-using Npgsql;
 
 namespace MeSender.Identity.Repositories;
 
 internal sealed class UserRepository(string connectionString)
 {
-    public void AddUser(UserEntity user)
+    public async Task<bool> AddUserAsync(UserEntity user)
     {
         var dbContext = new IdentityDbContext(connectionString);
-        var connection = dbContext.CreateConnection();
-        const string sql = "INSERT INTO Users (Id, Email, Password) VALUES (@Id, @Email, @Password)";
-        connection.Execute(sql, user);
+        using var connection = dbContext.CreateConnection();
+
+        const string checkSql = """SELECT 1 FROM "Users" WHERE Email = @Email""";
+        var exists = await connection.ExecuteScalarAsync<bool>(checkSql, new
+        {
+            user.Email,
+        });
+
+        if (exists)
+        {
+            return false;
+        }
+
+        const string insertSql = """INSERT INTO "Users" (Id, Email, Password) VALUES (@Id, @Email, @Password)""";
+        return await connection.ExecuteAsync(insertSql, user) > 0;
     }
 }

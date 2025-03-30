@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace MeSender.Messages.Migrations
 {
     [DbContext(typeof(ChatDbContext))]
-    [Migration("20250316183954_Initial")]
-    internal sealed partial class Initial
+    [Migration("20250330164848_Initial")]
+    public sealed partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

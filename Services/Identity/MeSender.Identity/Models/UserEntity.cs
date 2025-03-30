@@ -2,7 +2,7 @@
 
 internal sealed class UserEntity
 {
-    public Guid Id { get; init; }
+    public Guid Id { get; init; } = Guid.NewGuid();
 
     public required string Email { get; init; }
 

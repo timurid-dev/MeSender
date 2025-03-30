@@ -10,12 +10,19 @@ public sealed class RegisterController(IUserService userService) : ControllerBas
 {
     [HttpPut]
     [ProducesResponseType<IActionResult>(StatusCodes.Status200OK)]
-    public IActionResult RegisterUser([FromBody] UserDto user)
+    public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
     {
-        userService.AddUser(user.Email, user.Password);
+        var isSuccess = await userService.AddUserAsync(user.Email, user.Password);
+        var message = "Not registered, because user exists";
+
+        if (isSuccess)
+        {
+            message = "User registered successfully.";
+        }
+
         return Ok(new
-            {
-                Message = "User registered successfully.",
-            });
+        {
+            Message = message,
+        });
     }
 }

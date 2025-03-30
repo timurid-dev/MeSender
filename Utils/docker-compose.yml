@@ -1,13 +1,27 @@
 version: '3.8'
 services:
-  db:
-    image: postgres
-    container_name: my-postgres
+  messages_db:
+    image: postgres:latest
+    container_name: messages-db
     environment:
+      POSTGRES_DB: messages
       POSTGRES_PASSWORD: mysecretpassword
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - messages_data:/var/lib/postgresql/data
+
+  identity_db:
+    image: postgres:latest
+    container_name: identity-db
+    environment:
+      POSTGRES_DB: identity
+      POSTGRES_PASSWORD: mysecretpassword
+    ports:
+      - "5442:5432"
+    volumes:
+      - identity_data:/var/lib/postgresql/data
+
 volumes:
-  postgres_data:
+  messages_data:
+  identity_data:
