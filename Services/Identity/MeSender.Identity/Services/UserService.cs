@@ -15,4 +15,15 @@ internal sealed class UserService(UserRepository userRepository, TimeProvider ti
         };
         return await userRepository.AddUserAsync(userEntity);
     }
+
+    public async Task<bool> LoginUserAsync(string email, string password)
+    {
+        var userEntity = new UserEntity
+        {
+            Email = email,
+            Password = password,
+            CreatedAt = timeProvider.GetUtcNow(),
+        };
+        return await userRepository.LoginUserAsync(userEntity);
+    }
 }

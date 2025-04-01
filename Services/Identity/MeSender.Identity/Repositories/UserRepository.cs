@@ -1,4 +1,5 @@
-﻿using Dapper;
+﻿using System.Data;
+using Dapper;
 using MeSender.Identity.Data;
 using MeSender.Identity.Models;
 using MeSender.Identity.Services;
@@ -9,8 +10,7 @@ internal sealed class UserRepository(string connectionString)
 {
     public async Task<bool> AddUserAsync(UserEntity user)
     {
-        var dbContext = new IdentityDbContext(connectionString);
-        using var connection = dbContext.CreateConnection();
+        var connection = CreateDbConnection();
 
         const string checkSql = """SELECT 1 FROM "UserAuth" WHERE Email = @Email""";
         var exists = await connection.ExecuteScalarAsync<bool>(checkSql, new
@@ -39,5 +39,25 @@ internal sealed class UserRepository(string connectionString)
         };
 
         return await connection.ExecuteAsync(insertAuthSql, authData) > 0;
+    }
+
+    public async Task<bool> LoginUserAsync(UserEntity user)
+    {
+        var connection = CreateDbConnection();
+
+        const string getSql = """SELECT Password, Salt FROM "UserAuth" WHERE Email = @Email""";
+        var authData = await connection.QuerySingleOrDefaultAsync<(string Password, string Salt)>(getSql, new
+        {
+            user.Email,
+        });
+
+        return authData.Password.Length != 0 &&
+               PasswordService.VerifyPassword(user.Password, authData.Password, authData.Salt);
+    }
+
+    private IDbConnection CreateDbConnection()
+    {
+        var dbContext = new IdentityDbContext(connectionString);
+        return dbContext.CreateConnection();
     }
 }
