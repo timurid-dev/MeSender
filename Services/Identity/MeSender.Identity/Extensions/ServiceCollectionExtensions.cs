@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<UserRepository>(_ => new UserRepository(connectionString));
         services.AddScoped<IUserService, UserService>();
         services.AddSingleton(TimeProvider.System);
+        services.AddScoped<TokenService>();
 
         return services;
     }

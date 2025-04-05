@@ -8,23 +8,28 @@ namespace MeSender.Identity.WebApi.Controllers;
 [Route("api/login/")]
 public sealed class LoginController(IUserService userService) : ControllerBase
 {
-    [HttpPut]
-    [ProducesResponseType<IActionResult>(StatusCodes.Status200OK)]
+    [HttpPost]
+    [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginUser([FromBody] UserDto user)
     {
-        var isSuccess = await userService.LoginUserAsync(user.Email, user.Password);
+        var (accessToken, refreshToken, expiresAt) = await userService.LoginUserAsync(user.Email, user.Password);
 
-        if (isSuccess)
+        if (accessToken.Length == 0)
         {
-            return Ok(new
+            return Unauthorized(new
             {
-                Message = "Login is successfully",
+                Message = "User or password is invalid",
             });
         }
 
-        return Unauthorized(new
+        var response = new TokenResponse
         {
-            Message = "User or password is invalid",
-        });
+            AccessToken = accessToken,
+            RefreshToken = refreshToken,
+            ExpiresAt = expiresAt,
+        };
+
+        return Ok(response);
     }
 }

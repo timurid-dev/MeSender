@@ -41,18 +41,23 @@ internal sealed class UserRepository(string connectionString)
         return await connection.ExecuteAsync(insertAuthSql, authData) > 0;
     }
 
-    public async Task<bool> LoginUserAsync(UserEntity user)
+    public async Task<Guid?> LoginUserAsync(string email, string password)
     {
         var connection = CreateDbConnection();
 
-        const string getSql = """SELECT Password, Salt FROM "UserAuth" WHERE Email = @Email""";
-        var authData = await connection.QuerySingleOrDefaultAsync<(string Password, string Salt)>(getSql, new
+        const string getSql = """SELECT Id, Password, Salt FROM "UserAuth" WHERE Email = @Email""";
+        var authData = await connection.QuerySingleOrDefaultAsync<(Guid Id, string Password, string Salt)>(getSql, new
         {
-            user.Email,
+            email,
         });
 
-        return authData.Password.Length != 0 &&
-               PasswordService.VerifyPassword(user.Password, authData.Password, authData.Salt);
+        if (authData.Password.Length != 0 &&
+            PasswordService.VerifyPassword(password, authData.Password, authData.Salt))
+        {
+            return authData.Id;
+        }
+
+        return null;
     }
 
     private IDbConnection CreateDbConnection()
