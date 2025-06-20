@@ -13,16 +13,18 @@ public sealed class RegisterController(IUserService userService) : ControllerBas
     public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
     {
         var isSuccess = await userService.AddUserAsync(user.Email, user.Password);
-        var message = "Not registered, because user exists";
 
         if (isSuccess)
         {
-            message = "User registered successfully.";
+            return Ok(new
+            {
+                Message = "User registered successfully.",
+            });
         }
 
-        return Ok(new
+        return Conflict(new
         {
-            Message = message,
+            Message = "Not registered, because user exists",
         });
     }
 }

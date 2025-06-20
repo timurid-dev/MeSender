@@ -1,15 +1,14 @@
-using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using MeSender.Identity.Models;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MeSender.Identity.Services;
 
-internal sealed class TokenService(IConfiguration configuration, TimeProvider timeProvider)
+internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider)
 {
     public TokenPair GenerateTokens(Guid userId, string email)
     {
@@ -19,8 +18,8 @@ internal sealed class TokenService(IConfiguration configuration, TimeProvider ti
         return new TokenPair
         {
             AccessToken = accessToken.Token,
+            AccessTokenExpiresAt = accessToken.Expires,
             RefreshToken = refreshToken,
-            ExpiresAt = accessToken.Expires,
         };
     }
 
@@ -32,14 +31,14 @@ internal sealed class TokenService(IConfiguration configuration, TimeProvider ti
             new Claim(ClaimTypes.Email, email),
         };
 
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Secret"]!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Secret));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: configuration["Jwt:Issuer"],
-            audience: configuration["Jwt:Audience"],
+            issuer: jwtOptions.Value.Issuer,
+            audience: jwtOptions.Value.Audience,
             claims: claims,
-            expires: timeProvider.GetUtcNow().LocalDateTime.AddMinutes(int.Parse(configuration["Jwt:AccessTokenExpirationMinutes"] ?? "15", CultureInfo.InvariantCulture)),
+            expires: timeProvider.GetUtcNow().LocalDateTime.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes),
             signingCredentials: credentials);
 
         return (new JwtSecurityTokenHandler().WriteToken(token), new DateTimeOffset(token.ValidTo));

@@ -1,17 +1,13 @@
 ﻿using System.Data;
 using Dapper;
-using MeSender.Identity.Data;
 using MeSender.Identity.Models;
-using MeSender.Identity.Services;
 
 namespace MeSender.Identity.Repositories;
 
-internal sealed class UserRepository(string connectionString)
+internal sealed class UserRepository(IDbConnection connection)
 {
-    public async Task<bool> AddUserAsync(UserEntity user)
+    public async Task<bool> AddUserAsync(UserEntity user, string salt)
     {
-        var connection = CreateDbConnection();
-
         const string checkSql = """SELECT 1 FROM "UserAuth" WHERE Email = @Email""";
         var exists = await connection.ExecuteScalarAsync<bool>(checkSql, new
         {
@@ -23,8 +19,6 @@ internal sealed class UserRepository(string connectionString)
             return false;
         }
 
-        var (passwordHash, salt) = PasswordService.HashPassword(user.Password);
-
         const string insertUserSql = """INSERT INTO "Users" (Id, CreatedAt) VALUES (@Id, @CreatedAt)""";
         await connection.ExecuteAsync(insertUserSql, user);
 
@@ -34,35 +28,19 @@ internal sealed class UserRepository(string connectionString)
             AuthId = Guid.NewGuid(),
             user.Id,
             user.Email,
-            Password = passwordHash,
+            user.Password,
             Salt = salt,
         };
 
         return await connection.ExecuteAsync(insertAuthSql, authData) > 0;
     }
 
-    public async Task<Guid?> LoginUserAsync(string email, string password)
+    public async Task<AuthData?> LoginUserAsync(string email)
     {
-        var connection = CreateDbConnection();
-
         const string getSql = """SELECT Id, Password, Salt FROM "UserAuth" WHERE Email = @Email""";
-        var authData = await connection.QuerySingleOrDefaultAsync<(Guid Id, string Password, string Salt)>(getSql, new
+        return await connection.QuerySingleOrDefaultAsync<AuthData>(getSql, new
         {
             email,
         });
-
-        if (authData.Password.Length != 0 &&
-            PasswordService.VerifyPassword(password, authData.Password, authData.Salt))
-        {
-            return authData.Id;
-        }
-
-        return null;
-    }
-
-    private IDbConnection CreateDbConnection()
-    {
-        var dbContext = new IdentityDbContext(connectionString);
-        return dbContext.CreateConnection();
     }
 }

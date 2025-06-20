@@ -3,30 +3,32 @@ using MeSender.Identity.Repositories;
 
 namespace MeSender.Identity.Services;
 
-internal sealed class UserService(UserRepository userRepository, TokenService tokenService, TimeProvider timeProvider)
+internal sealed class UserService(UserRepository userRepository, TokenService tokenService, TimeProvider timeProvider, IPasswordService passwordService)
     : IUserService
 {
     public async Task<bool> AddUserAsync(string email, string password)
     {
+        var passwordData = passwordService.HashPassword(password);
         var userEntity = new UserEntity
         {
             Id = Guid.NewGuid(),
             Email = email,
-            Password = password,
+            Password = passwordData.PasswordHash,
             CreatedAt = timeProvider.GetUtcNow(),
         };
-        return await userRepository.AddUserAsync(userEntity);
+        return await userRepository.AddUserAsync(userEntity, passwordData.Salt);
     }
 
-    public async Task<(string AccessToken, string RefreshToken, DateTimeOffset ExpiresAt)> LoginUserAsync(string email, string password)
+    public async Task<TokenPair?> LoginUserAsync(string email, string password)
     {
-        var userId = await userRepository.LoginUserAsync(email, password);
-        if (userId == null)
+        var authData = await userRepository.LoginUserAsync(email);
+
+        if (authData == null)
         {
-            return (string.Empty, string.Empty, DateTimeOffset.MinValue);
+            return null;
         }
 
-        var tokens = tokenService.GenerateTokens(userId.Value, email);
-        return (tokens.AccessToken, tokens.RefreshToken, tokens.ExpiresAt);
+        var success = passwordService.VerifyPassword(password, authData.Password, authData.Salt);
+        return success ? tokenService.GenerateTokens(authData.Id, email) : null;
     }
 }

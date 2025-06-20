@@ -3,7 +3,7 @@ using Npgsql;
 
 namespace MeSender.Identity.Data;
 
-internal sealed class IdentityDbContext(string connectionString)
+internal sealed class DbConnectionFactory(string connectionString)
 {
     public IDbConnection CreateConnection()
     {

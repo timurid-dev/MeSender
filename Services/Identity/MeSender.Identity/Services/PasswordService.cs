@@ -1,12 +1,13 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using Konscious.Security.Cryptography;
+using MeSender.Identity.Models;
 
 namespace MeSender.Identity.Services;
 
-internal static class PasswordService
+internal sealed class PasswordService : IPasswordService
 {
-    public static (string Hash, string Salt) HashPassword(string password)
+    public PasswordData HashPassword(string password)
     {
         var saltBytes = new byte[32];
         using (var rng = RandomNumberGenerator.Create())
@@ -24,11 +25,15 @@ internal static class PasswordService
 
             var hashBytes = hasher.GetBytes(32); // 32 байта хеша
             var hash = Convert.ToBase64String(hashBytes);
-            return (hash, salt);
+            return new PasswordData
+            {
+                Salt = salt,
+                PasswordHash = hash,
+            };
         }
     }
 
-    public static bool VerifyPassword(string password, string storedHash, string storedSalt)
+    public bool VerifyPassword(string password, string storedHash, string storedSalt)
     {
         var saltBytes = Convert.FromBase64String(storedSalt);
         using var hasher = new Argon2id(Encoding.UTF8.GetBytes(password));

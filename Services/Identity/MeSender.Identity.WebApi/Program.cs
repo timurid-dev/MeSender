@@ -1,9 +1,13 @@
 using MeSender.Identity.Extensions;
+using MeSender.Identity.Services;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException();
+builder.Services.AddHostedService(_ => new MigrationService(connectionString));
+builder.Services.AddUsers(connectionString);
 builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
-builder.Services.AddUsers(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException());
 builder.Services.AddSwaggerGen(x =>
 {
     x.SwaggerDoc("v1", new OpenApiInfo

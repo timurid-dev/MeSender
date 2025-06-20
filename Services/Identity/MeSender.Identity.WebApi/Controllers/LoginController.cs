@@ -13,9 +13,9 @@ public sealed class LoginController(IUserService userService) : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginUser([FromBody] UserDto user)
     {
-        var (accessToken, refreshToken, expiresAt) = await userService.LoginUserAsync(user.Email, user.Password);
+        var tokenPair = await userService.LoginUserAsync(user.Email, user.Password);
 
-        if (accessToken.Length == 0)
+        if (tokenPair == null)
         {
             return Unauthorized(new
             {
@@ -23,13 +23,6 @@ public sealed class LoginController(IUserService userService) : ControllerBase
             });
         }
 
-        var response = new TokenResponse
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken,
-            ExpiresAt = expiresAt,
-        };
-
-        return Ok(response);
+        return Ok(tokenPair);
     }
 }
