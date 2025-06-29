@@ -1,4 +1,3 @@
-﻿using MeSender.Identity.Data;
 using MeSender.Identity.Models;
 using MeSender.Identity.Repositories;
 using MeSender.Identity.Services;
@@ -8,16 +7,13 @@ namespace MeSender.Identity.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddUsers(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddUsers(this IServiceCollection services, Action<JwtOptions> configureJwtOptions)
     {
-        var dbConnection = new DbConnectionFactory(connectionString);
-        var connection = dbConnection.CreateConnection();
-
-        services.AddScoped<UserRepository>(_ => new UserRepository(connection));
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserService, UserService>();
         services.AddSingleton(TimeProvider.System);
-        services.AddScoped<TokenService>();
-        services.AddOptions<JwtOptions>().BindConfiguration(JwtOptions.SectionName);
+        services.AddScoped<ITokenService, TokenService>();
+        services.Configure(configureJwtOptions);
         services.AddScoped<IPasswordService, PasswordService>();
 
         return services;

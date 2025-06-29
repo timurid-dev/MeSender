@@ -1,12 +1,15 @@
+using MeSender.Identity.Data;
 using MeSender.Identity.Extensions;
+using MeSender.Identity.Models;
 using MeSender.Identity.Services;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException();
-builder.Services.AddHostedService(_ => new MigrationService(connectionString));
-builder.Services.AddUsers(connectionString);
+builder.Services.AddSingleton<IDbConnectionFactory>(_ => new DbConnectionFactory(connectionString));
+builder.Services.AddHostedService<MigrationService>();
+builder.Services.AddUsers(options => builder.Configuration.GetSection(JwtOptions.SectionName).Bind(options));
 builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
 builder.Services.AddSwaggerGen(x =>
 {

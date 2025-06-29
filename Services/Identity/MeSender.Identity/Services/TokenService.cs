@@ -8,7 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MeSender.Identity.Services;
 
-internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider)
+internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider) : ITokenService
 {
     public TokenPair GenerateTokens(Guid userId, string email)
     {

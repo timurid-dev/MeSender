@@ -5,13 +5,14 @@ using Microsoft.Extensions.Hosting;
 
 namespace MeSender.Identity.Services;
 
-public sealed class MigrationService(string connectionString) : IHostedService
+public sealed class MigrationService(IDbConnectionFactory dbConnectionFactory) : IHostedService
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         var assembly = Assembly.GetExecutingAssembly();
         var resourceNames = assembly.GetManifestResourceNames()
-            .Where(name => name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase));
+            .Where(name => name.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+            .Order();
 
         foreach (var resourceName in resourceNames)
         {
@@ -19,7 +20,9 @@ public sealed class MigrationService(string connectionString) : IHostedService
             using var reader = new StreamReader(stream ?? throw new InvalidOperationException());
             var sqlScript = await reader.ReadToEndAsync(cancellationToken);
 
-            using var connection = new DbConnectionFactory(connectionString).CreateConnection();
+            await using var connection = dbConnectionFactory.CreateConnection();
+            await connection.OpenAsync(cancellationToken);
+
             await connection.ExecuteAsync(sqlScript);
         }
     }

@@ -1,4 +1,4 @@
-﻿using MeSender.Identity.Models;
+using MeSender.Identity.Models;
 
 namespace MeSender.Identity.Services;
 

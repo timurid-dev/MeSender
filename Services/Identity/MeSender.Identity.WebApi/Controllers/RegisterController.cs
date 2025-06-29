@@ -14,17 +14,17 @@ public sealed class RegisterController(IUserService userService) : ControllerBas
     {
         var isSuccess = await userService.AddUserAsync(user.Email, user.Password);
 
-        if (isSuccess)
+        if (!isSuccess)
         {
-            return Ok(new
+            return Conflict(new
             {
-                Message = "User registered successfully.",
+                Message = "Not registered, because user exists",
             });
         }
 
-        return Conflict(new
+        return Ok(new
         {
-            Message = "Not registered, because user exists",
+            Message = "User registered successfully.",
         });
     }
 }

@@ -1,6 +1,6 @@
-﻿namespace MeSender.Identity.Models;
+namespace MeSender.Identity.Models;
 
-internal sealed class AuthData
+public sealed class AuthData
 {
     public Guid Id { get; init; }
 

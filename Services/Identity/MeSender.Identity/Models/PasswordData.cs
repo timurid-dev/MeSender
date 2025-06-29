@@ -1,4 +1,4 @@
-﻿namespace MeSender.Identity.Models;
+namespace MeSender.Identity.Models;
 
 internal sealed class PasswordData
 {

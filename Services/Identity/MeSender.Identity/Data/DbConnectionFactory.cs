@@ -1,11 +1,11 @@
-﻿using System.Data;
+﻿using System.Data.Common;
 using Npgsql;
 
 namespace MeSender.Identity.Data;
 
-internal sealed class DbConnectionFactory(string connectionString)
+public sealed class DbConnectionFactory(string connectionString) : IDbConnectionFactory
 {
-    public IDbConnection CreateConnection()
+    public DbConnection CreateConnection()
     {
         return new NpgsqlConnection(connectionString);
     }
