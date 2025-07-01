@@ -8,8 +8,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
 {
     public async Task<bool> AddUserAsync(UserEntity user)
     {
-        await using var connection = connectionFactory.CreateConnection();
-        await connection.OpenAsync();
+        await using var connection = await connectionFactory.OpenConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
 
         try
@@ -57,9 +56,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
 
     public async Task<AuthData?> LoginUserAsync(string email)
     {
-        await using var connection = connectionFactory.CreateConnection();
-        await connection.OpenAsync();
-
+        await using var connection = await connectionFactory.OpenConnectionAsync();
         const string getSql = """SELECT Id, Password, Salt FROM "UserAuth" WHERE Email = @Email""";
         return await connection.QuerySingleOrDefaultAsync<AuthData>(getSql, new
         {

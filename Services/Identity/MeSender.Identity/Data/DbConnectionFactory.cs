@@ -5,8 +5,10 @@ namespace MeSender.Identity.Data;
 
 public sealed class DbConnectionFactory(string connectionString) : IDbConnectionFactory
 {
-    public DbConnection CreateConnection()
+    public async Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default)
     {
-        return new NpgsqlConnection(connectionString);
+        var connection = new NpgsqlConnection(connectionString);
+        await connection.OpenAsync(cancellationToken);
+        return connection;
     }
 }

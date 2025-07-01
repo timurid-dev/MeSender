@@ -4,5 +4,5 @@ namespace MeSender.Identity.Data;
 
 public interface IDbConnectionFactory
 {
-    public DbConnection CreateConnection();
+    public Task<DbConnection> OpenConnectionAsync(CancellationToken cancellationToken = default);
 }

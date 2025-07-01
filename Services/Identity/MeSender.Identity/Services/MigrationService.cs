@@ -20,9 +20,7 @@ public sealed class MigrationService(IDbConnectionFactory dbConnectionFactory) :
             using var reader = new StreamReader(stream ?? throw new InvalidOperationException());
             var sqlScript = await reader.ReadToEndAsync(cancellationToken);
 
-            await using var connection = dbConnectionFactory.CreateConnection();
-            await connection.OpenAsync(cancellationToken);
-
+            await using var connection = await dbConnectionFactory.OpenConnectionAsync(cancellationToken);
             await connection.ExecuteAsync(sqlScript);
         }
     }
