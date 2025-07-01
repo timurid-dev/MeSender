@@ -23,13 +23,19 @@ internal sealed class UserService(IUserRepository userRepository, ITokenService 
     public async Task<TokenPair?> LoginUserAsync(string email, string password)
     {
         var authData = await userRepository.LoginUserAsync(email);
-
         if (authData == null)
         {
             return null;
         }
 
         var success = passwordService.VerifyPassword(password, authData.Password, authData.Salt);
-        return success ? tokenService.GenerateTokens(authData.Id, email) : null;
+        if (!success)
+        {
+            return null;
+        }
+
+        var tokenPair = tokenService.GenerateTokens(authData.UserId, email);
+        await userRepository.UpdateRefreshTokenAsync(authData.UserId, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresAt);
+        return tokenPair;
     }
 }

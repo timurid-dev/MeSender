@@ -1,6 +1,6 @@
 namespace MeSender.Identity.WebApi.Models;
 
-public sealed class TokenResponse
+internal sealed class TokenResponse
 {
     public required string AccessToken { get; init; }
 

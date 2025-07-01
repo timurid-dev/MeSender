@@ -1,12 +1,10 @@
 namespace MeSender.Identity.Models;
 
-public sealed class TokenPair
+public sealed class RefreshTokenData
 {
-    public required string AccessToken { get; init; }
+    public Guid UserId { get; init; }
 
     public required string RefreshToken { get; init; }
-
-    public required DateTimeOffset AccessTokenExpiresAt { get; init; }
 
     public required DateTimeOffset RefreshTokenExpiresAt { get; init; }
 }

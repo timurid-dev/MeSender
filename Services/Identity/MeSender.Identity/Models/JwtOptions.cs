@@ -11,4 +11,6 @@ public sealed class JwtOptions
     public required string Audience { get; init; }
 
     public int AccessTokenExpirationMinutes { get; init; } = 15;
+
+    public int RefreshTokenExpirationMinutes { get; init; } = 1440;
 }

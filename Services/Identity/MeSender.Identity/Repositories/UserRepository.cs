@@ -28,8 +28,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
             const string insertUserSql = """INSERT INTO "Users" (Id, CreatedAt) VALUES (@Id, @CreatedAt)""";
             await connection.ExecuteAsync(insertUserSql, new
             {
-                user.Id,
-                user.CreatedAt,
+                user.Id, user.CreatedAt,
             }, transaction);
 
             const string insertAuthSql = """INSERT INTO "UserAuth" (Id, UserId, Email, Password, Salt) VALUES (@AuthId, @Id, @Email, @Password, @Salt)""";
@@ -57,10 +56,31 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
     public async Task<AuthData?> LoginUserAsync(string email)
     {
         await using var connection = await connectionFactory.OpenConnectionAsync();
-        const string getSql = """SELECT Id, Password, Salt FROM "UserAuth" WHERE Email = @Email""";
+        const string getSql = """SELECT UserId, Email, Password, Salt FROM "UserAuth" WHERE Email = @Email""";
         return await connection.QuerySingleOrDefaultAsync<AuthData>(getSql, new
         {
             email,
+        });
+    }
+
+    public async Task<RefreshTokenData?> FindByRefreshTokenAsync(string refreshToken)
+    {
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        const string sql = """SELECT UserId, Email, Password, Salt, RefreshToken, RefreshTokenExpiresAt FROM "UserAuth" WHERE RefreshToken = @refreshToken""";
+        return await connection.QuerySingleOrDefaultAsync<RefreshTokenData>(sql, new
+        {
+            refreshToken,
+        });
+    }
+
+    public async Task UpdateRefreshTokenAsync(Guid userId, string newRefreshToken, DateTimeOffset expiresAt)
+    {
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+
+        const string sql = """UPDATE "UserAuth" SET RefreshToken = @newRefreshToken, RefreshTokenExpiresAt = @expiresAt WHERE UserId = @userId""";
+        await connection.ExecuteAsync(sql, new
+        {
+            userId, newRefreshToken, expiresAt,
         });
     }
 }

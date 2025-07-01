@@ -3,12 +3,13 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using MeSender.Identity.Models;
+using MeSender.Identity.Repositories;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace MeSender.Identity.Services;
 
-internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider) : ITokenService
+internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, IUserRepository userRepository, TimeProvider timeProvider) : ITokenService
 {
     public TokenPair GenerateTokens(Guid userId, string email)
     {
@@ -20,7 +21,22 @@ internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider
             AccessToken = accessToken.Token,
             AccessTokenExpiresAt = accessToken.Expires,
             RefreshToken = refreshToken,
+            RefreshTokenExpiresAt = timeProvider.GetUtcNow().AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes),
         };
+    }
+
+    public async Task<TokenPair?> RefreshTokensAsync(string email, string refreshToken)
+    {
+        var refreshTokenData = await userRepository.FindByRefreshTokenAsync(refreshToken);
+        var utcNow = timeProvider.GetUtcNow();
+        if (refreshTokenData == null || refreshTokenData.RefreshToken != refreshToken || refreshTokenData.RefreshTokenExpiresAt < utcNow)
+        {
+            return null;
+        }
+
+        var tokenPair = GenerateTokens(refreshTokenData.UserId, email);
+        await userRepository.UpdateRefreshTokenAsync(refreshTokenData.UserId, tokenPair.RefreshToken, utcNow.AddMinutes(jwtOptions.Value.RefreshTokenExpirationMinutes));
+        return tokenPair;
     }
 
     private (string Token, DateTimeOffset Expires) GenerateJwtToken(Guid userId, string email)
