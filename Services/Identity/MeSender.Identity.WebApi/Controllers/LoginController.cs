@@ -10,19 +10,18 @@ public sealed class LoginController(IUserService userService) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status401Unauthorized)]
     public async Task<IActionResult> LoginUser([FromBody] UserDto user)
     {
-        var tokenPair = await userService.LoginUserAsync(user.Email, user.Password);
-
-        if (tokenPair == null)
+        var result = await userService.LoginUserAsync(user.Email, user.Password);
+        if (result.IsFailure)
         {
-            return Unauthorized(new
-            {
-                Message = "User or password is invalid",
-            });
+            return Problem(
+                detail: "Invalid username or password",
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Authentication failed");
         }
 
-        return Ok(tokenPair);
+        return Ok(result.Value);
     }
 }

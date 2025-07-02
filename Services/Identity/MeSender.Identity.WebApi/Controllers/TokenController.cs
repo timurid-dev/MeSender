@@ -10,23 +10,23 @@ public sealed class TokenController(ITokenService tokenService) : ControllerBase
 {
     [HttpPost("refresh")]
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
     {
-        var tokenPair = await tokenService.RefreshTokensAsync(refreshTokenDto.Email, refreshTokenDto.RefreshToken);
-        if (tokenPair == null)
+        var result = await tokenService.RefreshTokensAsync(refreshTokenDto.Email, refreshTokenDto.RefreshToken);
+        if (result.IsFailure)
         {
-            return Unauthorized(new
-            {
-                Message = "Invalid or expired refresh token",
-            });
+            return Problem(
+                detail: "The provided refresh token was not found or has expired",
+                statusCode: StatusCodes.Status404NotFound,
+                title: "Invalid or expired refresh token");
         }
 
         return Ok(new TokenResponse
         {
-            AccessToken = tokenPair.AccessToken,
-            RefreshToken = tokenPair.RefreshToken,
-            ExpiresAt = tokenPair.AccessTokenExpiresAt,
+            AccessToken = result.Value.AccessToken,
+            RefreshToken = result.Value.RefreshToken,
+            ExpiresAt = result.Value.AccessTokenExpiresAt,
         });
     }
 }

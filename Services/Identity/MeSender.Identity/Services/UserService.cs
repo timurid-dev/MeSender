@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using MeSender.Identity.Models;
 using MeSender.Identity.Repositories;
 
@@ -6,7 +7,7 @@ namespace MeSender.Identity.Services;
 internal sealed class UserService(IUserRepository userRepository, ITokenService tokenService, TimeProvider timeProvider, IPasswordService passwordService)
     : IUserService
 {
-    public async Task<bool> AddUserAsync(string email, string password)
+    public async Task<Result> AddUserAsync(string email, string password)
     {
         var passwordData = passwordService.HashPassword(password);
         var userEntity = new UserEntity
@@ -20,22 +21,22 @@ internal sealed class UserService(IUserRepository userRepository, ITokenService 
         return await userRepository.AddUserAsync(userEntity);
     }
 
-    public async Task<TokenPair?> LoginUserAsync(string email, string password)
+    public async Task<Result<TokenPair>> LoginUserAsync(string email, string password)
     {
         var authData = await userRepository.LoginUserAsync(email);
         if (authData == null)
         {
-            return null;
+            return Result.Failure<TokenPair>("Invalid email");
         }
 
         var success = passwordService.VerifyPassword(password, authData.Password, authData.Salt);
         if (!success)
         {
-            return null;
+            return Result.Failure<TokenPair>("Invalid password");
         }
 
         var tokenPair = tokenService.GenerateTokens(authData.UserId, email);
         await userRepository.UpdateRefreshTokenAsync(authData.UserId, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresAt);
-        return tokenPair;
+        return Result.Success(tokenPair);
     }
 }

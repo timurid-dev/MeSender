@@ -10,16 +10,17 @@ public sealed class RegisterController(IUserService userService) : ControllerBas
 {
     [HttpPut]
     [ProducesResponseType<IActionResult>(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
     {
-        var isSuccess = await userService.AddUserAsync(user.Email, user.Password);
+        var result = await userService.AddUserAsync(user.Email, user.Password);
 
-        if (!isSuccess)
+        if (result.IsFailure)
         {
-            return Conflict(new
-            {
-                Message = "Not registered, because user exists",
-            });
+            return Problem(
+                detail: "The user with this email is already registered",
+                statusCode: StatusCodes.Status409Conflict,
+                title: "User already exists");
         }
 
         return Ok(new

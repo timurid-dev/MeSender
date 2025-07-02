@@ -1,3 +1,4 @@
+using CSharpFunctionalExtensions;
 using Dapper;
 using MeSender.Identity.Data;
 using MeSender.Identity.Models;
@@ -6,7 +7,7 @@ namespace MeSender.Identity.Repositories;
 
 internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : IUserRepository
 {
-    public async Task<bool> AddUserAsync(UserEntity user)
+    public async Task<Result> AddUserAsync(UserEntity user)
     {
         await using var connection = await connectionFactory.OpenConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
@@ -22,7 +23,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
             if (exists)
             {
                 await transaction.RollbackAsync();
-                return false;
+                return Result.Failure("User with that email already exists.");
             }
 
             const string insertUserSql = """INSERT INTO "Users" (Id, CreatedAt) VALUES (@Id, @CreatedAt)""";
@@ -41,10 +42,10 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
                 user.Salt,
             };
 
-            var result = await connection.ExecuteAsync(insertAuthSql, authData, transaction);
+            await connection.ExecuteAsync(insertAuthSql, authData, transaction);
             await transaction.CommitAsync();
 
-            return result > 0;
+            return Result.Success();
         }
         catch
         {
