@@ -44,7 +44,7 @@ internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, IUserReposit
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString() + Guid.NewGuid()),
             new Claim(ClaimTypes.Email, email),
         };
 

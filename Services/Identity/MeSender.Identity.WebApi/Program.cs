@@ -10,7 +10,11 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddSingleton<IDbConnectionFactory>(_ => new DbConnectionFactory(connectionString));
 builder.Services.AddHostedService<MigrationService>();
 builder.Services.AddUsers(options => builder.Configuration.GetSection(JwtOptions.SectionName).Bind(options));
-builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false);
+builder.Services.AddControllers(options => options.SuppressAsyncSuffixInActionNames = false)
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    });
 builder.Services.AddSwaggerGen(x =>
 {
     x.SwaggerDoc("v1", new OpenApiInfo

@@ -6,7 +6,7 @@ namespace MeSender.Identity.WebApi.Controllers;
 
 [ApiController]
 [Route("api/token/")]
-public sealed class TokenController(ITokenService tokenService) : ControllerBase
+public sealed class TokenController(ITokenService tokenService) : ControllerBase, IController
 {
     [HttpPost("refresh")]
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
@@ -26,7 +26,7 @@ public sealed class TokenController(ITokenService tokenService) : ControllerBase
         {
             AccessToken = result.Value.AccessToken,
             RefreshToken = result.Value.RefreshToken,
-            ExpiresAt = result.Value.AccessTokenExpiresAt,
+            AccessTokenExpiresAt = result.Value.AccessTokenExpiresAt,
         });
     }
 }

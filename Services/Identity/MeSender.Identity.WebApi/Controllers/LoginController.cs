@@ -6,7 +6,7 @@ namespace MeSender.Identity.WebApi.Controllers;
 
 [ApiController]
 [Route("api/login/")]
-public sealed class LoginController(IUserService userService) : ControllerBase
+public sealed class LoginController(IUserService userService) : ControllerBase, IController
 {
     [HttpPost]
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]

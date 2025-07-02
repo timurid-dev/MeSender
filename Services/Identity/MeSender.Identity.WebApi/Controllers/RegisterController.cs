@@ -6,7 +6,7 @@ namespace MeSender.Identity.WebApi.Controllers;
 
 [ApiController]
 [Route("api/register/")]
-public sealed class RegisterController(IUserService userService) : ControllerBase
+public sealed class RegisterController(IUserService userService) : ControllerBase, IController
 {
     [HttpPut]
     [ProducesResponseType<IActionResult>(StatusCodes.Status200OK)]
@@ -14,7 +14,6 @@ public sealed class RegisterController(IUserService userService) : ControllerBas
     public async Task<IActionResult> RegisterUser([FromBody] UserDto user)
     {
         var result = await userService.AddUserAsync(user.Email, user.Password);
-
         if (result.IsFailure)
         {
             return Problem(

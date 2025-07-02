@@ -28,6 +28,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Identity.WebApi", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Identity", "Services\Identity\MeSender.Identity\MeSender.Identity.csproj", "{36FEBFAC-7E13-48BF-9A88-1885DED3761B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeSender.Identity.Tests", "Services\Identity\MeSender.Identity.Tests\MeSender.Identity.Tests.csproj", "{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -58,6 +60,10 @@ Global
 		{36FEBFAC-7E13-48BF-9A88-1885DED3761B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{36FEBFAC-7E13-48BF-9A88-1885DED3761B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36FEBFAC-7E13-48BF-9A88-1885DED3761B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -71,5 +77,6 @@ Global
 		{1C445DCE-558B-4DBE-9213-7C5C5D2303B7} = {C31730E1-7393-46CB-A795-4527A08D8C58}
 		{EE826799-D63D-4E03-8068-AA0BC818CE0F} = {1C445DCE-558B-4DBE-9213-7C5C5D2303B7}
 		{36FEBFAC-7E13-48BF-9A88-1885DED3761B} = {1C445DCE-558B-4DBE-9213-7C5C5D2303B7}
+		{A1B2C3D4-E5F6-7890-ABCD-EF1234567890} = {1C445DCE-558B-4DBE-9213-7C5C5D2303B7}
 	EndGlobalSection
 EndGlobal
