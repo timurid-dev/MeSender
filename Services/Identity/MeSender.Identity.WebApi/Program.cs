@@ -35,3 +35,5 @@ if (app.Environment.IsDevelopment())
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.MapControllers();
 await app.RunAsync();
+
+public abstract partial class Program;

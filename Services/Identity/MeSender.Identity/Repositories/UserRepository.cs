@@ -64,24 +64,34 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
         });
     }
 
-    public async Task<RefreshTokenData?> FindByRefreshTokenAsync(string refreshToken)
+    public async Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt, string provider)
     {
         await using var connection = await connectionFactory.OpenConnectionAsync();
-        const string sql = """SELECT UserId, Email, Password, Salt, RefreshToken, RefreshTokenExpiresAt FROM "UserAuth" WHERE RefreshToken = @refreshToken""";
-        return await connection.QuerySingleOrDefaultAsync<RefreshTokenData>(sql, new
+        const string sql = """
+            INSERT INTO "UserRefreshTokens" (Id, UserId, Provider, RefreshToken, ExpiresAt)
+            VALUES (@Id, @UserId, @Provider, @RefreshToken, @ExpiresAt)
+        """;
+        await connection.ExecuteAsync(sql, new
         {
-            refreshToken,
+            Id = Guid.NewGuid(),
+            UserId = userId,
+            Provider = provider,
+            RefreshToken = refreshToken,
+            ExpiresAt = expiresAt,
         });
     }
 
-    public async Task UpdateRefreshTokenAsync(Guid userId, string newRefreshToken, DateTimeOffset expiresAt)
+    public async Task<RefreshTokenData?> FindRefreshTokenAsync(string refreshToken)
     {
         await using var connection = await connectionFactory.OpenConnectionAsync();
-
-        const string sql = """UPDATE "UserAuth" SET RefreshToken = @newRefreshToken, RefreshTokenExpiresAt = @expiresAt WHERE UserId = @userId""";
-        await connection.ExecuteAsync(sql, new
+        const string sql = """
+            SELECT Id, UserId, Provider, RefreshToken, ExpiresAt
+            FROM "UserRefreshTokens"
+            WHERE RefreshToken = @RefreshToken
+        """;
+        return await connection.QuerySingleOrDefaultAsync<RefreshTokenData>(sql, new
         {
-            userId, newRefreshToken, expiresAt,
+            RefreshToken = refreshToken,
         });
     }
 }

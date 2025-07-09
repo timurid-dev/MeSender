@@ -6,14 +6,14 @@ namespace MeSender.Identity.WebApi.Controllers;
 
 [ApiController]
 [Route("api/token/")]
-public sealed class TokenController(ITokenService tokenService) : ControllerBase, IController
+public sealed class TokenController(IUserService userService) : ControllerBase
 {
     [HttpPost("refresh")]
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenDto refreshTokenDto)
+    public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
     {
-        var result = await tokenService.RefreshTokensAsync(refreshTokenDto.Email, refreshTokenDto.RefreshToken);
+        var result = await userService.RefreshUserTokenAsync(refreshToken);
         if (result.IsFailure)
         {
             return Problem(

@@ -6,7 +6,7 @@ namespace MeSender.Identity.WebApi.Controllers;
 
 [ApiController]
 [Route("api/register/")]
-public sealed class RegisterController(IUserService userService) : ControllerBase, IController
+public sealed class RegisterController(IUserService userService) : ControllerBase
 {
     [HttpPut]
     [ProducesResponseType<IActionResult>(StatusCodes.Status200OK)]

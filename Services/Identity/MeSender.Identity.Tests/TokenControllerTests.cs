@@ -5,7 +5,7 @@ using MeSender.Identity.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
-namespace MeSender.Identity.ComponentTests;
+namespace MeSender.Identity.Tests;
 
 public sealed class TokenControllerTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
 {
@@ -19,10 +19,9 @@ public sealed class TokenControllerTests(CustomWebApplicationFactory factory) : 
         await _client.PutAsJsonAsync("api/register/", user);
         var loginResponse = await _client.PostAsJsonAsync("api/login/", user);
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<TokenResponse>();
-        var refreshTokenDto = new RefreshTokenDto(user.Email, loginResult!.RefreshToken);
 
         // Act
-        var response = await _client.PostAsJsonAsync("api/token/refresh", refreshTokenDto);
+        var response = await _client.PostAsJsonAsync("api/token/refresh", loginResult!.RefreshToken);
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -42,10 +41,9 @@ public sealed class TokenControllerTests(CustomWebApplicationFactory factory) : 
         var user = new UserDto("refresh@example.com", "password123");
         await _client.PutAsJsonAsync("api/register/", user);
         await _client.PostAsJsonAsync("api/login/", user);
-        var invalidRefreshTokenDto = new RefreshTokenDto(user.Email, "invalid-refresh-token");
 
         // Act
-        var response = await _client.PostAsJsonAsync("api/token/refresh", invalidRefreshTokenDto);
+        var response = await _client.PostAsJsonAsync("api/token/refresh", "invalid-refresh-token");
 
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.NotFound);

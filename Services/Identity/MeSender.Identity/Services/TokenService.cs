@@ -10,11 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace MeSender.Identity.Services;
 
-internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, IUserRepository userRepository, TimeProvider timeProvider) : ITokenService
+internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, TimeProvider timeProvider) : ITokenService
 {
-    public TokenPair GenerateTokens(Guid userId, string email)
+    public TokenPair GenerateTokens(Guid userId)
     {
-        var accessToken = GenerateJwtToken(userId, email);
+        var accessToken = GenerateJwtToken(userId);
         var refreshToken = GenerateRefreshToken();
 
         return new TokenPair
@@ -22,30 +22,16 @@ internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, IUserReposit
             AccessToken = accessToken.Token,
             AccessTokenExpiresAt = accessToken.Expires,
             RefreshToken = refreshToken,
-            RefreshTokenExpiresAt = timeProvider.GetUtcNow().AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes),
+            RefreshTokenExpiresAt = timeProvider.GetUtcNow().Add(jwtOptions.Value.RefreshTokenExpirationSpan),
         };
     }
 
-    public async Task<Result<TokenPair>> RefreshTokensAsync(string email, string refreshToken)
-    {
-        var refreshTokenData = await userRepository.FindByRefreshTokenAsync(refreshToken);
-        var utcNow = timeProvider.GetUtcNow();
-        if (refreshTokenData == null || refreshTokenData.RefreshToken != refreshToken || refreshTokenData.RefreshTokenExpiresAt < utcNow)
-        {
-            return Result.Failure<TokenPair>("The refresh token is invalid or expired");
-        }
-
-        var tokenPair = GenerateTokens(refreshTokenData.UserId, email);
-        await userRepository.UpdateRefreshTokenAsync(refreshTokenData.UserId, tokenPair.RefreshToken, utcNow.AddMinutes(jwtOptions.Value.RefreshTokenExpirationMinutes));
-        return Result.Success(tokenPair);
-    }
-
-    private (string Token, DateTimeOffset Expires) GenerateJwtToken(Guid userId, string email)
+    private (string Token, DateTimeOffset Expires) GenerateJwtToken(Guid userId)
     {
         var claims = new[]
         {
-            new Claim(ClaimTypes.NameIdentifier, userId.ToString() + Guid.NewGuid()),
-            new Claim(ClaimTypes.Email, email),
+            new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Value.Secret));
@@ -55,7 +41,7 @@ internal sealed class TokenService(IOptions<JwtOptions> jwtOptions, IUserReposit
             issuer: jwtOptions.Value.Issuer,
             audience: jwtOptions.Value.Audience,
             claims: claims,
-            expires: timeProvider.GetUtcNow().LocalDateTime.AddMinutes(jwtOptions.Value.AccessTokenExpirationMinutes),
+            expires: timeProvider.GetUtcNow().ToLocalTime().Add(jwtOptions.Value.AccessTokenExpirationSpan).DateTime,
             signingCredentials: credentials);
 
         return (new JwtSecurityTokenHandler().WriteToken(token), new DateTimeOffset(token.ValidTo));

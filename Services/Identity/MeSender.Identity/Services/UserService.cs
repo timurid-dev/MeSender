@@ -21,7 +21,7 @@ internal sealed class UserService(IUserRepository userRepository, ITokenService 
         return await userRepository.AddUserAsync(userEntity);
     }
 
-    public async Task<Result<TokenPair>> LoginUserAsync(string email, string password)
+    public async Task<Result<TokenPair>> LoginUserAsync(string email, string password, string provider)
     {
         var authData = await userRepository.LoginUserAsync(email);
         if (authData == null)
@@ -35,8 +35,28 @@ internal sealed class UserService(IUserRepository userRepository, ITokenService 
             return Result.Failure<TokenPair>("Invalid password");
         }
 
-        var tokenPair = tokenService.GenerateTokens(authData.UserId, email);
-        await userRepository.UpdateRefreshTokenAsync(authData.UserId, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresAt);
+        var tokenPair = await GetUpdatedTokenAsync(authData.UserId, provider);
         return Result.Success(tokenPair);
+    }
+
+    public async Task<Result<TokenPair>> RefreshUserTokenAsync(string refreshToken)
+    {
+        var refreshTokenData = await userRepository.FindRefreshTokenAsync(refreshToken);
+        var utcNow = timeProvider.GetUtcNow();
+
+        if (refreshTokenData == null || refreshTokenData.RefreshToken != refreshToken || refreshTokenData.ExpiresAt < utcNow)
+        {
+            return Result.Failure<TokenPair>("The refresh token is invalid or expired");
+        }
+
+        var tokenPair = await GetUpdatedTokenAsync(refreshTokenData.UserId, refreshTokenData.Provider);
+        return Result.Success(tokenPair);
+    }
+
+    private async Task<TokenPair> GetUpdatedTokenAsync(Guid userId, string provider)
+    {
+        var tokenPair = tokenService.GenerateTokens(userId);
+        await userRepository.AddRefreshTokenAsync(userId, tokenPair.RefreshToken, tokenPair.RefreshTokenExpiresAt, provider);
+        return tokenPair;
     }
 }

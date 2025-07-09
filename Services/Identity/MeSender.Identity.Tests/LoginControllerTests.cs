@@ -5,7 +5,7 @@ using MeSender.Identity.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 using Xunit;
 
-namespace MeSender.Identity.ComponentTests;
+namespace MeSender.Identity.Tests;
 
 public sealed class LoginControllerTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
 {

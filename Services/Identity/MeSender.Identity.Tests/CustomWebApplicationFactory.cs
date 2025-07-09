@@ -1,18 +1,16 @@
-using Dapper;
+using System.Data.Common;
 using MeSender.Identity.Data;
-using MeSender.Identity.WebApi.Controllers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
 using Xunit;
 
-namespace MeSender.Identity.ComponentTests;
+namespace MeSender.Identity.Tests;
 
-public sealed class CustomWebApplicationFactory : WebApplicationFactory<IController>, IAsyncLifetime
+public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _postgresContainer = new PostgreSqlBuilder()
         .WithImage("postgres:15")
@@ -35,8 +33,8 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<IControl
                 ["Jwt:SecretKey"] = "your-super-secret-key-with-at-least-32-characters",
                 ["Jwt:Issuer"] = "MeSender",
                 ["Jwt:Audience"] = "MeSenderUsers",
-                ["Jwt:AccessTokenExpirationMinutes"] = "1",
-                ["Jwt:RefreshTokenExpirationMinutes"] = "5",
+                ["Jwt:AccessTokenExpirationSpan"] = "00:02:00",
+                ["Jwt:RefreshTokenExpirationSpan"] = "00:05:00",
             });
         });
 
@@ -58,8 +56,7 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<IControl
         await _postgresContainer.StartAsync();
         _connectionString = _postgresContainer.GetConnectionString();
         await InitializeDatabaseSchemaAsync();
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        var connection = await CreateDbConnectionAsync(_connectionString);
 
         _respawner = await Respawner.CreateAsync(connection, new RespawnerOptions
         {
@@ -71,36 +68,25 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<IControl
 
     private async Task InitializeDatabaseSchemaAsync()
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
-        await connection.ExecuteAsync("""
-                                          CREATE TABLE IF NOT EXISTS "Users"
-                                      (
-                                          Id        UUID PRIMARY KEY,
-                                          CreatedAt TIMESTAMP WITH TIME ZONE NOT NULL
-                                      );
-
-                                      CREATE TABLE IF NOT EXISTS "UserAuth"
-                                      (
-                                          Id                      UUID         PRIMARY KEY,
-                                          UserId                  UUID         NOT NULL,
-                                          Email                   VARCHAR(255) NOT NULL,
-                                          Password                TEXT         NOT NULL,
-                                          Salt                    TEXT         NOT NULL,
-                                          RefreshToken            TEXT         NULL,
-                                          RefreshTokenExpiresAt   TIMESTAMP    WITH TIME ZONE NULL,
-                                          CONSTRAINT FK_UserAuthentications_Users FOREIGN KEY (UserId) REFERENCES "Users" (Id),
-                                          CONSTRAINT UQ_UserAuthentications_Email UNIQUE (Email)
-                                      );
-                                      """);
+        var migrationService = new Services.MigrationService(GetDbConnectionFactory(_connectionString));
+        await migrationService.StartAsync(CancellationToken.None);
     }
 
     public new async Task DisposeAsync() => await _postgresContainer.DisposeAsync();
 
     public async Task ResetDatabaseAsync()
     {
-        await using var connection = new NpgsqlConnection(_connectionString);
-        await connection.OpenAsync();
+        var connection = await CreateDbConnectionAsync(_connectionString);
         await _respawner.ResetAsync(connection);
+    }
+
+    private static async Task<DbConnection> CreateDbConnectionAsync(string connectionString, CancellationToken cancellationToken = default)
+    {
+        return await GetDbConnectionFactory(connectionString).OpenConnectionAsync(cancellationToken);
+    }
+
+    private static IDbConnectionFactory GetDbConnectionFactory(string connectionString)
+    {
+        return new DbConnectionFactory(connectionString);
     }
 }
