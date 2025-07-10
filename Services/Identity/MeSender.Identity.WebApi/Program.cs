@@ -1,3 +1,4 @@
+using Hangfire;
 using MeSender.Identity.Data;
 using MeSender.Identity.Extensions;
 using MeSender.Identity.Models;
@@ -24,6 +25,9 @@ builder.Services.AddSwaggerGen(x =>
     });
 });
 
+var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException();
+builder.Services.AddTokenCleanupJob(redisConnectionString);
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -35,5 +39,12 @@ if (app.Environment.IsDevelopment())
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.MapControllers();
 await app.RunAsync();
+
+app.UseHangfireDashboard();
+
+RecurringJob.AddOrUpdate<IUserService>(
+    "delete-expired-refresh-tokens",
+    service => service.DeleteExpiredRefreshTokensAsync(),
+    Cron.Daily);
 
 public abstract partial class Program;

@@ -94,4 +94,16 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
             RefreshToken = refreshToken,
         });
     }
+
+    public async Task<int> DeleteExpiredRefreshTokensAsync(DateTimeOffset dateTimeOffset)
+    {
+        await using var connection = await connectionFactory.OpenConnectionAsync();
+        const string sql = """
+                           DELETE FROM "UserRefreshTokens" WHERE ExpiresAt < @UtcNow
+                           """;
+        return await connection.ExecuteAsync(sql, new
+        {
+            UtcNow = dateTimeOffset,
+        });
+    }
 }

@@ -53,6 +53,12 @@ internal sealed class UserService(IUserRepository userRepository, ITokenService 
         return Result.Success(tokenPair);
     }
 
+    public async Task<int> DeleteExpiredRefreshTokensAsync()
+    {
+        var utcNow = timeProvider.GetUtcNow();
+        return await userRepository.DeleteExpiredRefreshTokensAsync(utcNow);
+    }
+
     private async Task<TokenPair> GetUpdatedTokenAsync(Guid userId, string provider)
     {
         var tokenPair = tokenService.GenerateTokens(userId);

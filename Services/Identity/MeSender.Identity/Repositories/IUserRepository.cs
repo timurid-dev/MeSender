@@ -12,4 +12,6 @@ public interface IUserRepository
     public Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt, string provider);
 
     public Task<RefreshTokenData?> FindRefreshTokenAsync(string refreshToken);
+
+    public Task<int> DeleteExpiredRefreshTokensAsync(DateTimeOffset dateTimeOffset);
 }

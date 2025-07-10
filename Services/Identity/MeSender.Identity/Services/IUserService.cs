@@ -10,4 +10,6 @@ public interface IUserService
     public Task<Result<TokenPair>> LoginUserAsync(string email, string password, string provider);
 
     public Task<Result<TokenPair>> RefreshUserTokenAsync(string refreshToken);
+
+    public Task<int> DeleteExpiredRefreshTokensAsync();
 }
