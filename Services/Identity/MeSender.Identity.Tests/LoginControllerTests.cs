@@ -15,7 +15,11 @@ public sealed class LoginControllerTests(CustomWebApplicationFactory factory) : 
     public async Task LoginUser_WithValidCredentials_ShouldReturnTokens()
     {
         // Arrange
-        var user = new UserDto("login@example.com", "password123");
+        var user = new UserDto
+        {
+            Email = "login@example.com",
+            Password = "password123",
+        };
         await _client.PutAsJsonAsync("api/register/", user);
 
         // Act
@@ -34,7 +38,11 @@ public sealed class LoginControllerTests(CustomWebApplicationFactory factory) : 
     public async Task LoginUser_WithInvalidCredentials_ShouldReturnUnauthorized()
     {
         // Arrange
-        var user = new UserDto("notfound@example.com", "password123");
+        var user = new UserDto
+        {
+            Email = "notfound@example.com",
+            Password = "password123",
+        };
 
         // Act
         var response = await _client.PostAsJsonAsync("api/login/", user);
@@ -47,9 +55,17 @@ public sealed class LoginControllerTests(CustomWebApplicationFactory factory) : 
         problemDetails.Detail.Should().Be("Invalid username or password");
 
         // Arrange: зарегистрируем пользователя, но с другим паролем
-        var regUser = new UserDto("login@example.com", "password123");
+        var regUser = new UserDto
+        {
+            Email = "login@example.com",
+            Password = "password123",
+        };
         await _client.PutAsJsonAsync("api/register/", regUser);
-        var wrongPasswordUser = new UserDto("login@example.com", "wrongpassword");
+        var wrongPasswordUser = new UserDto
+        {
+            Email = "login@example.com",
+            Password = "wrongpassword",
+        };
 
         // Act
         var response2 = await _client.PostAsJsonAsync("api/login/", wrongPasswordUser);

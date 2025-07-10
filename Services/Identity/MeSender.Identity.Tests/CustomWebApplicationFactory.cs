@@ -25,6 +25,7 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseEnvironment("Testing");
         builder.ConfigureAppConfiguration(config =>
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>

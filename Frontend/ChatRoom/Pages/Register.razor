@@ -1,0 +1,65 @@
+@page "/register"
+@using ChatRoom.Models
+@using MudBlazor
+@inject IHttpClientFactory HttpClientFactory
+@inject TokenService TokenService
+
+<MudPaper Class="d-flex flex-column align-items-center" Style="max-width: 400px; margin: 48px auto; padding: 32px;">
+    @if (!_isAuthorized)
+    {
+        <h3 style="margin-bottom: 24px;">Регистрация</h3>
+        <EditForm Model="_user" OnValidSubmit="RegisterAsync">
+            <MudStack Spacing="2">
+                <MudTextField @bind-Value="_user.Email" Label="Email" Style="width: 300px;" />
+                <MudTextField @bind-Value="_user.Password" Label="Пароль" InputType="InputType.Password" Style="width: 300px;" />
+                <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" Style="margin-top: 16px; width: 100%; font-size: 1.1rem;">Зарегистрироваться</MudButton>
+            </MudStack>
+        </EditForm>
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <MudAlert Severity="Severity.Error" Style="margin-top: 16px;">@_error</MudAlert>
+        }
+        @if (!string.IsNullOrEmpty(_success))
+        {
+            <MudAlert Severity="Severity.Success" Style="margin-top: 16px;">@_success</MudAlert>
+        }
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Info">Вы уже авторизованы.</MudAlert>
+    }
+</MudPaper>
+
+@code {
+    private readonly UserDto _user = new();
+    private string? _error;
+    private string? _success;
+    private bool _isAuthorized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await TokenService.GetAccessTokenAsync();
+        _isAuthorized = !string.IsNullOrEmpty(token);
+    }
+
+    private async Task RegisterAsync()
+    {
+        var client = HttpClientFactory.CreateClient("IdentityApi");
+        var response = await client.PutAsJsonAsync("api/register/", _user);
+        if (response.IsSuccessStatusCode)
+        {
+            _success = "Регистрация успешна! Теперь вы можете войти.";
+            _error = null;
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            _error = "Пользователь с таким email уже существует.";
+            _success = null;
+        }
+        else
+        {
+            _error = "Ошибка регистрации";
+            _success = null;
+        }
+    }
+}

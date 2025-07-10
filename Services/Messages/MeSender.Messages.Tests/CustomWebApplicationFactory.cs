@@ -1,11 +1,12 @@
 ﻿using MeSender.Messages.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace MeSender.Messages.ComponentTests;
+namespace MeSender.Messages.Tests;
 
 public sealed class CustomWebApplicationFactory : WebApplicationFactory<WebApi.Controllers.MessagesController>
 {
@@ -21,6 +22,12 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<WebApi.C
             }
 
             services.AddDbContext<ChatDbContext>(options => options.UseInMemoryDatabase("TestInmemoryDB"));
+            services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            })
+            .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
         });
     }
 

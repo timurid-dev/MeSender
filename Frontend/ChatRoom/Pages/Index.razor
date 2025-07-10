@@ -1,19 +1,19 @@
 ﻿@page "/"
 @using ChatRoom.Models
 @using MudBlazor
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 
 <MudContainer>
     <i>
-        <MudTextField @bind-Value="messageToSend" Label="Сообщение вводить сюды" Style="background-color: antiquewhite"/>
+        <MudTextField @bind-Value="_messageToSend" Label="Сообщение вводить сюды" Style="background-color: antiquewhite"/>
     </i>
     <MudButton Style="background-color: #1b6ec2" OnClick="SendMessageAsync">Отправить</MudButton>
     <MudList T="Message">
         <MudText>Список сообщений чата:</MudText>
         <ul style="background-color: darkkhaki">
-            @if (messages != null)
+            @if (_messages != null)
             {
-                foreach (var message in messages)
+                foreach (var message in _messages)
                 {
                     <li>
                         <MudListItem>Создано: @message.CreateTimestamp
@@ -31,8 +31,8 @@
 </MudContainer>
 
 @code {
-    private string messageToSend = null!;
-    private List<Message>? messages = [];
+    private string _messageToSend = null!;
+    private List<Message>? _messages = [];
 
     protected override async Task OnInitializedAsync()
     {
@@ -41,19 +41,20 @@
 
     private async Task ListMessagesAsync()
     {
-        messages = await Http.GetFromJsonAsync<List<Message>>("api/messages/");
+        var client = HttpClientFactory.CreateClient("MessagesApi");
+        _messages = await client.GetFromJsonAsync<List<Message>>("api/messages/");
     }
 
     private async Task SendMessageAsync()
     {
-        if (string.IsNullOrEmpty(messageToSend))
+        if (string.IsNullOrEmpty(_messageToSend))
             return;
 
-        var message = new Message(messageToSend);
+        var message = new Message(_messageToSend);
         var uri = $"api/messages/{Guid.NewGuid()}";
-        await Http.PutAsJsonAsync(uri, message);
-        messageToSend = string.Empty;
+        var client = HttpClientFactory.CreateClient("MessagesApi");
+        await client.PutAsJsonAsync(uri, message);
+        _messageToSend = string.Empty;
         await ListMessagesAsync();
     }
-
 }

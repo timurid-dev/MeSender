@@ -1,4 +1,5 @@
 using MeSender.Messages.Extensions;
+using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +12,21 @@ builder.Services.AddMessages(
     builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException(),
     options => builder.Configuration.GetSection("Jwt").Bind(options));
 
+builder.Services.AddSwaggerGen(x =>
+{
+    x.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "MeSender.Messages.WebApi",
+        Version = "v1",
+    });
+});
+
 var app = builder.Build();
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "MeSender.Messages.WebApi v1"));
+}
 
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseAuthentication();

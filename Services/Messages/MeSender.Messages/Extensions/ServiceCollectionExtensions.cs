@@ -20,12 +20,12 @@ public static class ServiceCollectionExtensions
 
         services.Configure(configureJwtOptions);
 
+        var sp = services.BuildServiceProvider();
+        var jwtOptions = sp.GetRequiredService<IOptions<JwtOptions>>().Value;
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                var serviceProvider = services.BuildServiceProvider();
-                var jwtOptions = serviceProvider.GetRequiredService<IOptions<JwtOptions>>().Value;
-
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,

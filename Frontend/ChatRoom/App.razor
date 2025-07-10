@@ -1,12 +1,25 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)"/>
-        <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
+        <RouteView RouteData="@routeData" DefaultLayout="typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
     </Found>
     <NotFound>
-        <PageTitle>Not found</PageTitle>
-        <LayoutView Layout="@typeof(MainLayout)">
-            <p role="alert">Sorry, there's nothing at this address.</p>
+        <LayoutView Layout="typeof(MainLayout)">
+            <p>Sorry, there's nothing at this address.</p>
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await TokenService.GetAccessTokenAsync();
+        if (string.IsNullOrEmpty(token) && !Navigation.Uri.Contains("/login"))
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

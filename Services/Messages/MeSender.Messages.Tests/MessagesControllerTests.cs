@@ -3,7 +3,7 @@ using FluentAssertions;
 using MeSender.Messages.Models;
 using Xunit;
 
-namespace MeSender.Messages.ComponentTests;
+namespace MeSender.Messages.Tests;
 
 public sealed class MessagesControllerTests(CustomWebApplicationFactory factory) : IClassFixture<CustomWebApplicationFactory>, IAsyncLifetime
 {

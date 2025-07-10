@@ -1,0 +1,40 @@
+@page "/login"
+@using ChatRoom.Models
+@inject IHttpClientFactory HttpClientFactory
+@inject NavigationManager Navigation
+@inject TokenService TokenService
+
+<h3>Вход</h3>
+<EditForm Model="_userDto" OnValidSubmit="LoginAsync">
+    <InputText @bind-Value="_userDto.Email" placeholder="Email" />
+    <InputText @bind-Value="_userDto.Password" placeholder="Пароль" type="password" />
+    <button type="submit">Войти</button>
+</EditForm>
+@if (!string.IsNullOrEmpty(_error))
+{
+    <p style="color:red">@_error</p>
+}
+
+@code {
+    private readonly UserDto _userDto = new();
+    private string? _error;
+
+    private async Task LoginAsync()
+    {
+        var client = HttpClientFactory.CreateClient("IdentityApi");
+        var response = await client.PostAsJsonAsync("api/login", _userDto);
+        if (response.IsSuccessStatusCode)
+        {
+            var tokens = await response.Content.ReadFromJsonAsync<TokenResponse>();
+            if (tokens is not null)
+            {
+                await TokenService.SetTokensAsync(tokens.AccessToken, tokens.RefreshToken);
+                Navigation.NavigateTo("/");
+            }
+        }
+        else
+        {
+            _error = "Ошибка входа";
+        }
+    }
+}

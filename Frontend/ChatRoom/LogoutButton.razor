@@ -1,0 +1,23 @@
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+@if (_isAuthorized)
+{
+    <button @onclick="Logout">Выйти</button>
+}
+
+@code {
+    private bool _isAuthorized;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await TokenService.GetAccessTokenAsync();
+        _isAuthorized = !string.IsNullOrEmpty(token);
+    }
+
+    private async Task Logout()
+    {
+        await TokenService.ClearTokensAsync();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+} 

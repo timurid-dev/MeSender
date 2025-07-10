@@ -1,3 +1,59 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
+
+@inject TokenService TokenService
+@inject NavigationManager Navigation
+
+@code {
+    private bool _isAuthorized;
+    private bool _isLoginPage;
+    private bool _isRegisterPage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await UpdateState();
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    private async void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        await UpdateState();
+        StateHasChanged();
+    }
+
+    private async Task UpdateState()
+    {
+        var token = await TokenService.GetAccessTokenAsync();
+        _isAuthorized = !string.IsNullOrEmpty(token);
+        var uri = Navigation.Uri.ToLower();
+        _isLoginPage = uri.Contains("/login");
+        _isRegisterPage = uri.Contains("/register");
+    }
+
+    public void Dispose()
+    {
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+}
+
+<div style="display: flex; justify-content: flex-end; align-items: center; padding: 8px; background: #f5f5f5; gap: 12px;">
+    @if (!_isAuthorized)
+    {
+        @if (_isRegisterPage)
+        {
+            <a href="/login">Войти</a>
+        }
+        else if (_isLoginPage)
+        {
+            <a href="/register">Регистрация</a>
+        }
+        else
+        {
+            <a href="/register">Регистрация</a>
+            <a href="/login">Войти</a>
+        }
+    }
+    <LogoutButton />
+</div>
 
 @Body

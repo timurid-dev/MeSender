@@ -31,8 +31,12 @@ builder.Services.AddSwaggerGen(x =>
         Version = "v1",
     });
 });
-var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException();
-builder.Services.AddTokenCleanupJob(redisConnectionString);
+
+if (!builder.Environment.IsEnvironment("Testing"))
+{
+    var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException();
+    builder.Services.AddTokenCleanupJob(redisConnectionString);
+}
 
 var app = builder.Build();
 
@@ -43,13 +47,18 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
-app.UseHangfireDashboard();
 
-RecurringJob.AddOrUpdate<IUserService>(
-    "delete-expired-refresh-tokens",
-    service => service.DeleteExpiredRefreshTokensAsync(),
-    Cron.Daily);
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHangfireDashboard();
+    RecurringJob.AddOrUpdate<IUserService>(
+        "delete-expired-refresh-tokens",
+        service => service.DeleteExpiredRefreshTokensAsync(),
+        Cron.Daily);
+}
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 await app.RunAsync();
 
