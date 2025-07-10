@@ -28,6 +28,38 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
+  messages-api:
+    build:
+      context: ..
+      dockerfile: Services/Messages/MeSender.Messages.WebApi/Dockerfile
+    ports:
+      - "5002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JWT_SECRET=your-super-secret-key-with-minimum-32-characters
+      - JWT_ISSUER=MeSender
+      - JWT_AUDIENCE=MeSender
+    depends_on:
+      - messages_db
+
+  identity-api:
+    build:
+      context: ..
+      dockerfile: Services/Identity/MeSender.Identity.WebApi/Dockerfile
+    ports:
+      - "5001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - JWT_SECRET=your-super-secret-key-with-minimum-32-characters
+      - JWT_REFRESH_SECRET=your-super-secret-refresh-key-with-minimum-32-characters
+      - JWT_ISSUER=MeSender
+      - JWT_AUDIENCE=MeSender
+      - JWT_ACCESS_TOKEN_EXPIRATION=00:15:00
+      - JWT_REFRESH_TOKEN_EXPIRATION=7.00:00:00
+    depends_on:
+      - identity_db
+      - redis
+
 volumes:
   messages_data:
   identity_data:

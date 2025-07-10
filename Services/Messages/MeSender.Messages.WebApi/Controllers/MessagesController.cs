@@ -1,11 +1,13 @@
 ﻿using MeSender.Messages.Services;
 using MeSender.Messages.WebApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MeSender.Messages.WebApi.Controllers;
 
 [ApiController]
 [Route("api/messages/")]
+[Authorize]
 public sealed class MessagesController(IMessageService messageService) : ControllerBase
 {
     [HttpGet]
