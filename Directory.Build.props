@@ -6,13 +6,6 @@
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
-    <ItemGroup Condition="!$(MSBuildProjectName.Contains('ChatRoom'))">
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.7" />
-        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
-        <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.12.1" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
-    </ItemGroup>
-
     <ItemGroup>
         <PackageReference Include="Meziantou.Analyzer" Version="2.0.205">
             <PrivateAssets>all</PrivateAssets>

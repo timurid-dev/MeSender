@@ -1,7 +1,9 @@
-namespace MeSender.Identity.Models;
+namespace MeSender.Messages.WebApi.Models;
 
 public sealed class JwtOptions
 {
+    public static string SectionName => "Jwt";
+
     public required string Secret { get; init; }
 
     public required string Issuer { get; init; }

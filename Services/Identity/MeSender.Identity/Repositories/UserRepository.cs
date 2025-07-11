@@ -64,18 +64,17 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
         });
     }
 
-    public async Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt, string provider)
+    public async Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt)
     {
         await using var connection = await connectionFactory.OpenConnectionAsync();
         const string sql = """
-            INSERT INTO "UserRefreshTokens" (Id, UserId, Provider, RefreshToken, ExpiresAt)
-            VALUES (@Id, @UserId, @Provider, @RefreshToken, @ExpiresAt)
+            INSERT INTO "UserRefreshTokens" (Id, UserId, RefreshToken, ExpiresAt)
+            VALUES (@Id, @UserId, @RefreshToken, @ExpiresAt)
         """;
         await connection.ExecuteAsync(sql, new
         {
             Id = Guid.NewGuid(),
             UserId = userId,
-            Provider = provider,
             RefreshToken = refreshToken,
             ExpiresAt = expiresAt,
         });
@@ -85,7 +84,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
     {
         await using var connection = await connectionFactory.OpenConnectionAsync();
         const string sql = """
-            SELECT Id, UserId, Provider, RefreshToken, ExpiresAt
+            SELECT Id, UserId, RefreshToken, ExpiresAt
             FROM "UserRefreshTokens"
             WHERE RefreshToken = @RefreshToken
         """;

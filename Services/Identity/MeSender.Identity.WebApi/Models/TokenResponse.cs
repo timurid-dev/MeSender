@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace MeSender.Identity.WebApi.Models;
 
 public sealed class TokenResponse

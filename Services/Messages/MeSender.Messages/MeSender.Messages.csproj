@@ -11,4 +11,8 @@
     <InternalsVisibleTo Include="MeSender.Messages.Tests"/>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>

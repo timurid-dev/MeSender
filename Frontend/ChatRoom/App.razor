@@ -17,9 +17,9 @@
     protected override async Task OnInitializedAsync()
     {
         var token = await TokenService.GetAccessTokenAsync();
-        if (string.IsNullOrEmpty(token) && !Navigation.Uri.Contains("/login"))
+        if (string.IsNullOrEmpty(token) && !Navigation.Uri.Contains(Routes.Login))
         {
-            Navigation.NavigateTo("/login");
+            Navigation.NavigateTo(Routes.Login);
         }
     }
 }

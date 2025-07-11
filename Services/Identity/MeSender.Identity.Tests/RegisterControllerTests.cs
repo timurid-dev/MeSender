@@ -15,11 +15,7 @@ public sealed class RegisterControllerTests(CustomWebApplicationFactory factory)
     public async Task RegisterUser_WithValidData_ShouldReturnSuccess()
     {
         // Arrange
-        var user = new UserDto
-        {
-            Email = "test@example.com",
-            Password = "password123",
-        };
+        var user = new UserDto("test@example.com", "password123");
 
         // Act
         var response = await _client.PutAsJsonAsync("api/register/", user);
@@ -32,11 +28,7 @@ public sealed class RegisterControllerTests(CustomWebApplicationFactory factory)
     public async Task RegisterUser_WithDuplicateEmail_ShouldReturnConflict()
     {
         // Arrange
-        var user = new UserDto
-        {
-            Email = "duplicate@example.com",
-            Password = "password123",
-        };
+        var user = new UserDto("duplicate@example.com", "password123");
         await _client.PutAsJsonAsync("api/register/", user);
 
         // Act

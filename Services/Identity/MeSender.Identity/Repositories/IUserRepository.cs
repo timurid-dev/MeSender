@@ -9,7 +9,7 @@ public interface IUserRepository
 
     public Task<AuthData?> LoginUserAsync(string email);
 
-    public Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt, string provider);
+    public Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt);
 
     public Task<RefreshTokenData?> FindRefreshTokenAsync(string refreshToken);
 

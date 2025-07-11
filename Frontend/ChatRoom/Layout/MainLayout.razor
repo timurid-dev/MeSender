@@ -3,6 +3,7 @@
 
 @inject TokenService TokenService
 @inject NavigationManager Navigation
+@using ChatRoom
 
 @code {
     private bool _isAuthorized;
@@ -41,16 +42,16 @@
     {
         @if (_isRegisterPage)
         {
-            <a href="/login">Войти</a>
+            <a href="@Routes.Login">Войти</a>
         }
         else if (_isLoginPage)
         {
-            <a href="/register">Регистрация</a>
+            <a href="@Routes.Register">Регистрация</a>
         }
         else
         {
-            <a href="/register">Регистрация</a>
-            <a href="/login">Войти</a>
+            <a href="@Routes.Register">Регистрация</a>
+            <a href="@Routes.Login">Войти</a>
         }
     }
     <LogoutButton />

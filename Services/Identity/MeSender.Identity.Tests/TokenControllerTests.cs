@@ -15,11 +15,7 @@ public sealed class TokenControllerTests(CustomWebApplicationFactory factory) : 
     public async Task RefreshToken_WithValidToken_ShouldReturnNewTokens()
     {
         // Arrange
-        var user = new UserDto
-        {
-            Email = "refresh@example.com",
-            Password = "password123",
-        };
+        var user = new UserDto("refresh@example.com", "password123");
         await _client.PutAsJsonAsync("api/register/", user);
         var loginResponse = await _client.PostAsJsonAsync("api/login/", user);
         var loginResult = await loginResponse.Content.ReadFromJsonAsync<TokenResponse>();
@@ -42,11 +38,7 @@ public sealed class TokenControllerTests(CustomWebApplicationFactory factory) : 
     public async Task RefreshToken_WithInvalidOrExpiredToken_ShouldReturnNotFound()
     {
         // Arrange
-        var user = new UserDto
-        {
-            Email = "refresh@example.com",
-            Password = "password123",
-        };
+        var user = new UserDto("refresh@example.com", "password123");
         await _client.PutAsJsonAsync("api/register/", user);
         await _client.PostAsJsonAsync("api/login/", user);
 

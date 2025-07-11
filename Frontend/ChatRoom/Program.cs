@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using ChatRoom;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -11,10 +12,11 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped<TokenService>();
 builder.Services.AddScoped<AuthHandler>();
+builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddHttpClient("IdentityApi", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5001");
+    client.BaseAddress = new Uri("http://localhost:5244");
 })
 .AddPolicyHandler(HttpPolicyExtensions
     .HandleTransientHttpError()
@@ -22,7 +24,7 @@ builder.Services.AddHttpClient("IdentityApi", client =>
 
 builder.Services.AddHttpClient("MessagesApi", client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5002");
+    client.BaseAddress = new Uri("http://localhost:5344");
 })
 .AddHttpMessageHandler<AuthHandler>()
 .AddPolicyHandler(HttpPolicyExtensions

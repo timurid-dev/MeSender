@@ -3,7 +3,6 @@ using Hangfire.Redis.StackExchange;
 using MeSender.Identity.Models;
 using MeSender.Identity.Repositories;
 using MeSender.Identity.Services;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MeSender.Identity.Extensions;
@@ -22,7 +21,7 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddTokenCleanupJob(this IServiceCollection services, string connectionString)
+    public static IServiceCollection AddHangfireEntity(this IServiceCollection services, string connectionString)
     {
         services.AddHangfire(config =>
         {
@@ -31,6 +30,8 @@ public static class ServiceCollectionExtensions
             config.UseRedisStorage(connectionString);
         });
         services.AddHangfireServer();
+        services.AddHostedService<RecurringJobHostedService>();
+
         return services;
     }
 }
