@@ -28,6 +28,62 @@ services:
       - "6379:6379"
     restart: unless-stopped
 
+  rabbitmq:
+    image: rabbitmq:management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
+    restart: unless-stopped
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    command: ["--config=/etc/otel.config.yaml"]
+    volumes:
+      - ./configs/otel.config.yaml:/etc/otel.config.yaml
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      - "8888:8888"   # Metrics
+      - "8889:8889"   # Health check
+      - "13133:13133" # Health check
+    depends_on:
+      - prometheus
+      - grafana
+    networks:
+      - otel-net
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./configs/prometheus.config.yaml:/etc/prometheus/prometheus.config.yaml
+    ports:
+      - "9090:9090"
+    networks:
+      - otel-net
+
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    ports:
+      - "3000:3000"
+    networks:
+      - otel-net
+  
 volumes:
   messages_data:
   identity_data:
+  rabbitmq_data:
+  grafana-storage:
+
+networks:
+  otel-net:
+    driver: bridge

@@ -1,4 +1,5 @@
 using Hangfire;
+using MassTransit;
 using MeSender.Identity.Data;
 using MeSender.Identity.Extensions;
 using MeSender.Identity.Models;
@@ -22,6 +23,18 @@ builder.Services.AddSwaggerGen(x =>
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException();
 builder.Services.AddHangfireEntity(redisConnectionString);
+
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host("rabbitmq://localhost", h =>
+        {
+            h.Username("admin");
+            h.Password("password");
+        });
+    });
+});
 
 var app = builder.Build();
 app.UseHangfireDashboard();

@@ -10,6 +10,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMessages(this IServiceCollection services, string connectionString)
     {
         services.AddDbContext<ChatDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddHostedService<MigrationService>();
         services.AddScoped<IMessageService, MessageService>();
         services.AddSingleton(TimeProvider.System);
 

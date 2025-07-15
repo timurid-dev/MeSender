@@ -1,4 +1,6 @@
-﻿using MeSender.Identity.Services;
+﻿using MassTransit;
+using MeSender.Identity.Events.Models;
+using MeSender.Identity.Services;
 using MeSender.Identity.WebApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -6,7 +8,7 @@ namespace MeSender.Identity.WebApi.Controllers;
 
 [ApiController]
 [Route("api/login/")]
-public sealed class LoginController(IUserService userService) : ControllerBase
+public sealed class LoginController(IUserService userService, IPublishEndpoint publishEndpoint) : ControllerBase
 {
     [HttpPost]
     [ProducesResponseType<TokenResponse>(StatusCodes.Status200OK)]
@@ -22,6 +24,8 @@ public sealed class LoginController(IUserService userService) : ControllerBase
                 statusCode: StatusCodes.Status401Unauthorized,
                 title: "Authentication failed");
         }
+
+        await publishEndpoint.Publish(new UserLoggedInDto(user.Email), HttpContext.RequestAborted);
 
         return Ok(result.Value);
     }

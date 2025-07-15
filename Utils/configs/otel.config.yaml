@@ -1,0 +1,32 @@
+receivers:
+  otlp:
+    protocols:
+      grpc:
+      http:
+
+processors:
+  batch:
+
+exporters:
+  debug:
+    verbosity: detailed  # аналог предыдущего logging с loglevel: debug
+  prometheus:
+    endpoint: "0.0.0.0:9091"  # Изменили порт на 9091
+    namespace: "otel"
+    const_labels:
+      service: "demo"
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]  # изменили здесь
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [prometheus, debug]  # и здесь
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [debug]  # и здесь

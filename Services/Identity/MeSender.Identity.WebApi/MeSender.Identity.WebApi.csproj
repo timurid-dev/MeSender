@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   
     <ItemGroup>
+      <ProjectReference Include="..\MeSender.Identity.Events\MeSender.Identity.Events.csproj" />
       <ProjectReference Include="..\MeSender.Identity\MeSender.Identity.csproj" />
     </ItemGroup>
 
