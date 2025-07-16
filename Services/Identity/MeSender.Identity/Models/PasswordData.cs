@@ -1,6 +1,6 @@
 namespace MeSender.Identity.Models;
 
-internal sealed class PasswordData
+public sealed class PasswordData
 {
     public required string PasswordHash { get; init; }
 

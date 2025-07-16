@@ -4,7 +4,7 @@ using MeSender.Identity.Repositories;
 
 namespace MeSender.Identity.Services;
 
-internal sealed class UserService(IUserRepository userRepository, ITokenService tokenService, TimeProvider timeProvider, IPasswordService passwordService)
+public sealed class UserService(IUserRepository userRepository, ITokenService tokenService, TimeProvider timeProvider, IPasswordService passwordService)
     : IUserService
 {
     public async Task<Result> AddUserAsync(string email, string password)

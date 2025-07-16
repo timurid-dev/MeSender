@@ -2,7 +2,7 @@ using MeSender.Identity.Models;
 
 namespace MeSender.Identity.Services;
 
-internal interface IPasswordService
+public interface IPasswordService
 {
     public PasswordData HashPassword(string password);
 
