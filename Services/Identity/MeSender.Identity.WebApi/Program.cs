@@ -5,6 +5,8 @@ using MeSender.Identity.Extensions;
 using MeSender.Identity.Models;
 using MeSender.Identity.Services;
 using Microsoft.OpenApi.Models;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException();
@@ -17,12 +19,28 @@ builder.Services.AddSwaggerGen(x =>
 {
     x.SwaggerDoc("v1", new OpenApiInfo
     {
-        Title = "MeSender.Identity.WebApi", Version = "v1",
+        Title = $"{nameof(MeSender)}.Identity.WebApi", Version = "v1",
     });
 });
 
 var redisConnectionString = builder.Configuration.GetConnectionString("Redis") ?? throw new InvalidOperationException();
 builder.Services.AddHangfireEntity(redisConnectionString);
+
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracing =>
+    {
+        tracing
+            .SetResourceBuilder(ResourceBuilder.CreateDefault().AddService(builder.Environment.ApplicationName))
+            .AddSource("MassTransit")
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddEntityFrameworkCoreInstrumentation()
+            .AddOtlpExporter(options =>
+            {
+                options.Endpoint = new Uri("http://localhost:4317");
+                options.Protocol = OpenTelemetry.Exporter.OtlpExportProtocol.Grpc;
+            });
+    });
 
 builder.Services.AddMassTransit(x =>
 {
@@ -39,7 +57,7 @@ builder.Services.AddMassTransit(x =>
 var app = builder.Build();
 app.UseHangfireDashboard();
 app.UseSwagger();
-app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", "MeSender.Identity.WebApi v1"));
+app.UseSwaggerUI(x => x.SwaggerEndpoint("/swagger/v1/swagger.json", $"{nameof(MeSender)}.Identity.WebApi v1"));
 app.UseCors(policy => policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 app.UseAuthentication();
 app.UseAuthorization();

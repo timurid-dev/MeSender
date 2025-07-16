@@ -2,7 +2,6 @@ version: '3.8'
 services:
   messages_db:
     image: postgres:latest
-    container_name: messages-db
     environment:
       POSTGRES_DB: messages
       POSTGRES_PASSWORD: mysecretpassword
@@ -13,7 +12,6 @@ services:
 
   identity_db:
     image: postgres:latest
-    container_name: identity-db
     environment:
       POSTGRES_DB: identity
       POSTGRES_PASSWORD: mysecretpassword
@@ -30,15 +28,25 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
-    container_name: rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=password
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.56
+    container_name: jaeger
+    ports:
+      - "16686:16686"   # UI
+      - "6831:6831/udp" # Jaeger agent
+      - "14268:14268"   # Collector HTTP
+    networks:
+      - otel-net
     restart: unless-stopped
 
   otel-collector:
@@ -47,16 +55,18 @@ services:
     volumes:
       - ./configs/otel.config.yaml:/etc/otel.config.yaml
     ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
+      - "4317:4317"   # OTLP gRPC (для .NET сервисов с хоста)
+      - "4318:4318"   # OTLP HTTP (если нужно)
       - "8888:8888"   # Metrics
       - "8889:8889"   # Health check
       - "13133:13133" # Health check
     depends_on:
       - prometheus
       - grafana
+      - jaeger
     networks:
       - otel-net
+    restart: unless-stopped
 
   prometheus:
     image: prom/prometheus:latest
@@ -77,7 +87,7 @@ services:
       - "3000:3000"
     networks:
       - otel-net
-  
+
 volumes:
   messages_data:
   identity_data:

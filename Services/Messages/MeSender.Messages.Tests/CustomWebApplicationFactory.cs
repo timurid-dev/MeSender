@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace MeSender.Messages.Tests;
@@ -14,13 +13,6 @@ public sealed class CustomWebApplicationFactory : WebApplicationFactory<WebApi.C
     {
         builder.ConfigureServices(services =>
         {
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(IDbContextOptionsConfiguration<ChatDbContext>));
-            if (descriptor != null)
-            {
-                services.Remove(descriptor);
-            }
-
             services.AddDbContext<ChatDbContext>(options => options.UseInMemoryDatabase("TestInmemoryDB"));
             services.AddAuthentication(options =>
             {

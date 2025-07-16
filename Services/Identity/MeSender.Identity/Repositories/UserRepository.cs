@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CSharpFunctionalExtensions;
 using Dapper;
 using MeSender.Identity.Data;
@@ -7,8 +8,11 @@ namespace MeSender.Identity.Repositories;
 
 internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : IUserRepository
 {
+    private static readonly ActivitySource ActivitySource = new($"{nameof(MeSender)}.{nameof(Identity)}.{nameof(UserRepository)}");
+
     public async Task<Result> AddUserAsync(UserEntity user)
     {
+        using var activity = ActivitySource.StartActivity();
         await using var connection = await connectionFactory.OpenConnectionAsync();
         await using var transaction = await connection.BeginTransactionAsync();
 
@@ -56,6 +60,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
 
     public async Task<AuthData?> LoginUserAsync(string email)
     {
+        using var activity = ActivitySource.StartActivity();
         await using var connection = await connectionFactory.OpenConnectionAsync();
         const string getSql = """SELECT UserId, Email, Password, Salt FROM "UserAuth" WHERE Email = @Email""";
         return await connection.QuerySingleOrDefaultAsync<AuthData>(getSql, new
@@ -66,6 +71,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
 
     public async Task AddRefreshTokenAsync(Guid userId, string refreshToken, DateTimeOffset expiresAt)
     {
+        using var activity = ActivitySource.StartActivity();
         await using var connection = await connectionFactory.OpenConnectionAsync();
         const string sql = """
             INSERT INTO "UserRefreshTokens" (Id, UserId, RefreshToken, ExpiresAt)
@@ -82,6 +88,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
 
     public async Task<RefreshTokenData?> FindRefreshTokenAsync(string refreshToken)
     {
+        using var activity = ActivitySource.StartActivity();
         await using var connection = await connectionFactory.OpenConnectionAsync();
         const string sql = """
             SELECT Id, UserId, RefreshToken, ExpiresAt
@@ -96,6 +103,7 @@ internal sealed class UserRepository(IDbConnectionFactory connectionFactory) : I
 
     public async Task<int> DeleteExpiredRefreshTokensAsync(DateTimeOffset dateTimeOffset)
     {
+        using var activity = ActivitySource.StartActivity();
         await using var connection = await connectionFactory.OpenConnectionAsync();
         const string sql = """
                            DELETE FROM "UserRefreshTokens" WHERE ExpiresAt < @UtcNow
